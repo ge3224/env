@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+log() {
+    echo "[TMUX] $1"
+}
+
+DOTFILES_DIR="${DEV_ENV:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+
+log "Setting up tmux..."
+
+# Install tmux
+log "Installing tmux..."
+sudo pacman -S --needed --noconfirm tmux
+
+# Remove existing .tmux.conf (file or symlink)
+if [ -e "$HOME/.tmux.conf" ] || [ -L "$HOME/.tmux.conf" ]; then
+    log "Removing existing .tmux.conf..."
+    rm -rf "$HOME/.tmux.conf"
+fi
+
+# Create symlink to tmux config
+log "Creating symlink to .tmux.conf..."
+ln -sf "$DOTFILES_DIR/dotfiles/tmux/.tmux.conf" "$HOME/.tmux.conf"
+
+log "Tmux configuration complete!"

@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+log() {
+    echo "[T480] $1"
+}
+
+log "Configuring T480-specific hardware optimizations..."
+
+# Install throttled package for T480
+log "Installing throttled package..."
+sudo pacman -S --needed --noconfirm throttled
+
+# Start and enable throttled service
+log "Enabling throttled service..."
+sudo systemctl enable --now throttled
+
+# Install msr-tools
+log "Installing msr-tools..."
+sudo pacman -S --needed --noconfirm msr-tools
+
+# Create throttlestop script
+log "Creating throttlestop script..."
+sudo tee /usr/local/bin/throttlestop > /dev/null <<'EOF'
+#!/bin/bash
+modprobe msr
+reg="$(rdmsr -d 0x1FC)"
+if [ $((reg%2)) -eq 1 ]; then
+    wrmsr 0x1FC $((reg-1))
+fi
+EOF
+
+sudo chmod 0755 /usr/local/bin/throttlestop
+
+# Create throttlestop service
+log "Creating throttlestop systemd service..."
+sudo tee /etc/systemd/system/throttlestop.service > /dev/null <<'EOF'
+[Unit]
+Description=Disable BD PROCHOT throttling
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/throttlestop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Start and enable throttlestop service
+log "Enabling throttlestop service..."
+sudo systemctl enable --now throttlestop
+
+# Install fwupd for firmware updates
+log "Installing fwupd for firmware updates..."
+sudo pacman -S --needed --noconfirm fwupd
+
+# Remove xorg-xbacklight if installed, install acpilight instead
+log "Configuring backlight control (acpilight)..."
+sudo pacman -R --noconfirm xorg-xbacklight 2>/dev/null || true
+sudo pacman -S --needed --noconfirm acpilight
+
+# Add user to video group
+log "Adding user to video group..."
+sudo usermod -aG video "$USER"
+
+# Create udev rules for backlight control
+log "Creating udev rules for backlight control..."
+sudo tee /etc/udev/rules.d/90-backlight.rules > /dev/null <<'EOF'
+SUBSYSTEM=="backlight", ACTION=="add", \
+  RUN+="/bin/chgrp video /sys/class/backlight/%k/brightness", \
+  RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"
+
+SUBSYSTEM=="leds", ACTION=="add", KERNEL=="*::kbd_backlight", \
+  RUN+="/bin/chgrp video /sys/class/leds/%k/brightness", \
+  RUN+="/bin/chmod g+w /sys/class/leds/%k/brightness"
+EOF
+
+# Reload and trigger udev rules
+log "Reloading udev rules..."
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+
+log "T480 hardware configuration complete!"
+log "Note: You may need to log out and back in for group changes to take effect"

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+log() {
+    echo "[CHEAT] $1"
+}
+
+DOTFILES_DIR="${DEV_ENV:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+
+log "Setting up cheat CLI cheatsheets..."
+
+# Create cheatsheets directory structure
+log "Creating cheat directories..."
+mkdir -p "$HOME/.config/cheat/cheatsheets"
+
+# Clone community cheatsheets if not present
+if [ ! -d "$HOME/.config/cheat/cheatsheets/community" ]; then
+    log "Cloning community cheatsheets..."
+    git clone https://github.com/cheat/cheatsheets.git "$HOME/.config/cheat/cheatsheets/community"
+else
+    log "Community cheatsheets already cloned"
+fi
+
+# Remove existing cheat config symlinks/files
+if [ -e "$HOME/.config/cheat/conf.yml" ] || [ -L "$HOME/.config/cheat/conf.yml" ]; then
+    log "Removing existing cheat config..."
+    rm -f "$HOME/.config/cheat/conf.yml"
+fi
+
+if [ -e "$HOME/.config/cheat/cheatsheets/personal" ] || [ -L "$HOME/.config/cheat/cheatsheets/personal" ]; then
+    log "Removing existing personal cheatsheets link..."
+    rm -rf "$HOME/.config/cheat/cheatsheets/personal"
+fi
+
+# Create symlinks to cheat config and personal cheatsheets
+log "Creating symlink to cheat config..."
+ln -sf "$DOTFILES_DIR/dotfiles/cheatsheets/conf.yml" "$HOME/.config/cheat/conf.yml"
+
+log "Creating symlink to personal cheatsheets..."
+ln -sf "$DOTFILES_DIR/dotfiles/cheatsheets/personal" "$HOME/.config/cheat/cheatsheets/personal"
+
+log "Cheat cheatsheets configured!"

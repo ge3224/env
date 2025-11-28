@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+log() {
+    echo "[GHOSTTY] $1"
+}
+
+DOTFILES_DIR="${DEV_ENV:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+
+log "Setting up ghostty terminal emulator..."
+
+# Install ghostty
+log "Installing ghostty..."
+sudo pacman -S --needed --noconfirm ghostty
+
+# Remove existing ghostty config (directory or symlink)
+if [ -e "$HOME/.config/ghostty" ] || [ -L "$HOME/.config/ghostty" ]; then
+    log "Removing existing ghostty config..."
+    rm -rf "$HOME/.config/ghostty"
+fi
+
+# Create symlink to ghostty config
+log "Creating symlink to ghostty config..."
+ln -sf "$DOTFILES_DIR/dotfiles/ghostty" "$HOME/.config/ghostty"
+
+log "Ghostty configuration complete!"

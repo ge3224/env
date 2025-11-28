@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+log() {
+    echo "[KEYBOARD] $1"
+}
+
+log "Configuring keyboard (CapsLock -> Esc)..."
+
+# Ensure directory exists
+sudo mkdir -p /etc/X11/xorg.conf.d
+
+# Create keyboard configuration
+log "Creating keyboard configuration file..."
+sudo tee /etc/X11/xorg.conf.d/00-keyboard.conf > /dev/null <<'EOF'
+Section "InputClass"
+    Identifier "system-keyboard"
+    MatchIsKeyboard "on"
+    Option "XkbLayout" "us"
+    Option "XkbOptions" "terminate:ctrl_alt_bksp,caps:escape_shifted_capslock"
+EndSection
+EOF
+
+log "Keyboard configuration complete!"
+log "CapsLock mapped to Esc (Shift+CapsLock for CapsLock)"

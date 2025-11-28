@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+if [ -z "${DEV_ENV:-}" ]; then
+    export DEV_ENV="$script_dir"
+fi
+
+grep=""
+dry_run="0"
+
+while [[ $# -gt 0 ]]; do
+    if [[ "$1" == "--dry" ]]; then
+        dry_run="1"
+    else
+        grep="$1"
+    fi
+    shift
+done
+
+log() {
+    if [[ $dry_run == "1" ]]; then
+        echo "[DRY_RUN]: $1"
+    else
+        echo "$1"
+    fi
+}
+
+log "Starting dotfiles setup..."
+log "Environment: $DEV_ENV"
+log "Filter: ${grep:-none}"
+log ""
+
+# Find all executable scripts in runs directory
+runs_dir=$(find "$script_dir/runs" -mindepth 1 -maxdepth 1 -type f -executable 2>/dev/null | sort)
+
+if [ -z "$runs_dir" ]; then
+    log "No executable scripts found in $script_dir/runs"
+    exit 1
+fi
+
+# Execute scripts
+for s in $runs_dir; do
+    script_name=$(basename "$s")
+
+    # Apply grep filter if specified
+    if [ -n "$grep" ] && ! echo "$script_name" | grep -q "$grep"; then
+        log "Filtered out: $script_name"
+        continue
+    fi
+
+    log "==> Running: $script_name"
+
+    if [[ $dry_run == "0" ]]; then
+        if ! "$s"; then
+            log "ERROR: Script $script_name failed"
+            exit 1
+        fi
+    fi
+
+    log ""
+done
+
+log "Setup complete!"
