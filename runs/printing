@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+
+echo "Setting up CUPS printing system..."
+
+# Install CUPS and tools
+echo "Installing CUPS..."
+sudo pacman -S --needed --noconfirm \
+    cups \
+    cups-pdf \
+    system-config-printer \
+    ghostscript \
+    gsfonts
+
+# Install printer drivers
+echo "Installing printer drivers..."
+sudo pacman -S --needed --noconfirm \
+    gutenprint \
+    hplip \
+    splix
+
+# Start and enable CUPS service
+echo "Enabling CUPS service..."
+sudo systemctl enable --now cups.service
+
+# Add user to lp group
+echo "Adding $USER to lp group..."
+sudo usermod -aG lp "$USER"
+
+echo "CUPS printing system installed!"
+echo "Note: You may need to log out and back in for group changes to take effect"
+echo "Configure printers at http://localhost:631 or use system-config-printer"

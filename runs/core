@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+log() {
+    echo "[CORE] $1"
+}
+
+log "Installing core system tools..."
+
+# Core system utilities
+packages=(
+    "wl-clipboard"          # Wayland clipboard utilities
+    "unzip"                 # Extract ZIP archives
+    "zip"                   # Create ZIP archives
+    "tar"                   # Archive creation/extraction
+    "tree"                  # Directory visualization
+    "fd"                    # Modern find alternative
+    "ripgrep"               # Fast text search
+    "btop"                  # Modern system monitor
+    "lsof"                  # List open files
+    "strace"                # System call tracing
+    "jq"                    # JSON processor
+    "fzf"                   # Fuzzy finder
+    "wlr-randr"             # Display configuration
+    "grim"                  # Screenshot utility
+    "slurp"                 # Screen area selection
+    "swappy"                # Screenshot annotation
+    "git"                   # Version control
+    "make"                  # Build automation
+    "pkgconf"               # Compiler flags
+    "lshw"                  # Hardware info
+    "xdg-user-dirs"         # Default user directories
+    "nwg-look"              # GTK theme manager
+    "waybar"                # Status bar for Wayland
+    "keepassxc"             # Password manager
+    "imagemagick"           # Image manipulation suite
+)
+
+log "Installing packages: ${packages[*]}"
+
+if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --needed --noconfirm "${packages[@]}"
+else
+    log "ERROR: No supported package manager found (pacman)"
+    exit 1
+fi
+
+log "Creating default XDG user directories..."
+xdg-user-dirs-update
+
+# Configure pacman
+log "Configuring pacman..."
+
+# Enable colorized output and verbose package lists
+log "Enabling pacman color and verbose output..."
+sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
+sudo sed -i 's/^#VerbosePkgLists$/VerbosePkgLists/' /etc/pacman.conf
+
+# Enable multilib repository (common configuration)
+log "Enabling multilib repository..."
+sudo sed -i '/^#\[multilib\]$/,/^#Include = \/etc\/pacman.d\/mirrorlist$/ {
+    s/^#\[multilib\]$/[multilib]/
+    s/^#Include = \/etc\/pacman.d\/mirrorlist$/Include = \/etc\/pacman.d\/mirrorlist/
+}' /etc/pacman.conf
+
+# Update system
+log "Running system update..."
+sudo pacman -Syu --noconfirm
+
+log "Core tools installation completed!"

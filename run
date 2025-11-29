@@ -8,16 +8,26 @@ if [ -z "${DEV_ENV:-}" ]; then
     export DEV_ENV="$script_dir"
 fi
 
+# Parse arguments
+profile_override=""
 grep=""
 dry_run="0"
 
 while [[ $# -gt 0 ]]; do
-    if [[ "$1" == "--dry" ]]; then
-        dry_run="1"
-    else
-        grep="$1"
-    fi
-    shift
+    case "$1" in
+        --dry)
+            dry_run="1"
+            shift
+            ;;
+        --profile)
+            profile_override="$2"
+            shift 2
+            ;;
+        *)
+            grep="$1"
+            shift
+            ;;
+    esac
 done
 
 log() {
@@ -28,39 +38,108 @@ log() {
     fi
 }
 
-log "Starting dotfiles setup..."
+# Determine which profile to use
+profile=""
+if [ -n "$profile_override" ]; then
+    profile="$profile_override"
+    log "Using profile override: $profile"
+elif [ -f "$script_dir/.profile" ]; then
+    profile=$(cat "$script_dir/.profile")
+    log "Using configured profile: $profile"
+else
+    log "No profile configured for this machine."
+    log ""
+    log "First, create a profile for your machine:"
+    log "  1. Look at existing profiles in profiles/ directory for examples"
+    log "  2. Create a new profile: profiles/my-machine"
+    log "  3. List the scripts you want to run (one per line)"
+    log "  4. Set your profile: ./setup my-machine"
+    log ""
+    log "Example profile (profiles/my-laptop):"
+    log "  # My Laptop Profile"
+    log "  aur"
+    log "  core"
+    log "  fonts"
+    log "  dev"
+    log "  nvim"
+    log ""
+    log "Then run: ./setup my-laptop"
+    exit 1
+fi
+
+# Verify profile exists
+if [ ! -f "$script_dir/profiles/$profile" ]; then
+    log "ERROR: Profile '$profile' not found at $script_dir/profiles/$profile"
+    exit 1
+fi
+
 log "Environment: $DEV_ENV"
 log "Filter: ${grep:-none}"
 log ""
 
-# Find all executable scripts in runs directory
-runs_dir=$(find "$script_dir/runs" -mindepth 1 -maxdepth 1 -type f -executable 2>/dev/null | sort)
+# Read scripts from profile file
+scripts_to_run=()
+while IFS= read -r line; do
+    # Skip comments and empty lines
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    [[ -z "$line" ]] && continue
 
-if [ -z "$runs_dir" ]; then
-    log "No executable scripts found in $script_dir/runs"
+    # Trim whitespace
+    script_name=$(echo "$line" | xargs)
+    [[ -z "$script_name" ]] && continue
+
+    scripts_to_run+=("$script_name")
+done < "$script_dir/profiles/$profile"
+
+if [ ${#scripts_to_run[@]} -eq 0 ]; then
+    log "No scripts defined in profile: $profile"
     exit 1
 fi
 
-# Execute scripts
-for s in $runs_dir; do
-    script_name=$(basename "$s")
+log "Scripts from profile '$profile': ${#scripts_to_run[@]} total"
+log ""
+
+# Execute scripts in profile order
+executed=0
+skipped=0
+for script_name in "${scripts_to_run[@]}"; do
+    script_path="$script_dir/runs/$script_name"
+
+    # Check if script exists and is executable
+    if [ ! -f "$script_path" ]; then
+        log "WARNING: Script not found: $script_name (skipping)"
+        skipped=$((skipped + 1))
+        continue
+    fi
+
+    if [ ! -x "$script_path" ]; then
+        log "WARNING: Script not executable: $script_name (skipping)"
+        skipped=$((skipped + 1))
+        continue
+    fi
 
     # Apply grep filter if specified
     if [ -n "$grep" ] && ! echo "$script_name" | grep -q "$grep"; then
         log "Filtered out: $script_name"
+        skipped=$((skipped + 1))
         continue
     fi
 
     log "==> Running: $script_name"
 
     if [[ $dry_run == "0" ]]; then
-        if ! "$s"; then
+        if ! "$script_path"; then
             log "ERROR: Script $script_name failed"
             exit 1
         fi
     fi
 
+    executed=$((executed + 1))
     log ""
 done
 
-log "Setup complete!"
+log "Profile '$profile' complete!"
+log "Executed: $executed scripts"
+if [ $skipped -gt 0 ]; then
+    log "Skipped: $skipped scripts"
+fi

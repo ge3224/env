@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+# Waybar Configuration Run - Shared
+# Sets up waybar configuration with symlinks
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "Setting up waybar configuration..."
+
+# Install waybar
+echo "Installing waybar..."
+sudo pacman -S --needed --noconfirm waybar
+
+# Create waybar config directory
+mkdir -p "$HOME/.config/waybar"
+
+# Handle existing waybar config
+if [ -e "$HOME/.config/waybar/config.jsonc" ]; then
+    if [ -L "$HOME/.config/waybar/config.jsonc" ]; then
+        echo "Existing waybar config is already a symlink, removing it"
+        rm "$HOME/.config/waybar/config.jsonc"
+    else
+        echo "Backing up existing waybar config to .config/waybar/config.jsonc.backup"
+        mv "$HOME/.config/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc.backup"
+    fi
+fi
+
+if [ -e "$HOME/.config/waybar/style.css" ]; then
+    if [ -L "$HOME/.config/waybar/style.css" ]; then
+        echo "Existing waybar style is already a symlink, removing it"
+        rm "$HOME/.config/waybar/style.css"
+    else
+        echo "Backing up existing waybar style to .config/waybar/style.css.backup"
+        mv "$HOME/.config/waybar/style.css" "$HOME/.config/waybar/style.css.backup"
+    fi
+fi
+
+# Create symlinks from dotfiles
+echo "Creating symlinks to waybar config files"
+ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
+ln -sf "$DOTFILES_DIR/files/waybar/style.css" "$HOME/.config/waybar/style.css"
+ln -sf "$DOTFILES_DIR/files/waybar/fcitx5-indicator.sh" "$HOME/.config/waybar/fcitx5-indicator.sh"
+chmod +x "$HOME/.config/waybar/fcitx5-indicator.sh"
+
+# Create machine-specific style overrides based on profile
+if [ -f "$DOTFILES_DIR/.profile" ]; then
+    PROFILE=$(cat "$DOTFILES_DIR/.profile")
+    echo "Detected profile: $PROFILE"
+
+    echo "Creating empty local.css (using default styles)"
+    touch "$HOME/.config/waybar/local.css"
+else
+    echo "No profile detected, creating empty local.css"
+    touch "$HOME/.config/waybar/local.css"
+fi
+
+echo "Waybar configuration setup completed!"
+echo "Restart waybar with: killall waybar && waybar &"

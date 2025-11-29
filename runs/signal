@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+
+echo "Installing Signal Desktop..."
+
+sudo pacman -S --needed --noconfirm signal-desktop
+
+echo "Signal Desktop installed!"

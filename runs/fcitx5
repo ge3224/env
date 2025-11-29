@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+# fcitx5 Configuration Run - Shared
+# Sets up fcitx5 input method framework for Chinese input
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "Setting up fcitx5 input method framework..."
+
+# fcitx5 packages
+packages=(
+    "fcitx5"                    # Input method framework
+    "fcitx5-gtk"                # GTK IM module
+    "fcitx5-qt"                 # Qt IM module
+    "fcitx5-configtool"         # GUI configuration tool
+    "fcitx5-chinese-addons"     # Pinyin input method with Traditional Chinese support
+)
+
+echo "Installing fcitx5 packages..."
+sudo pacman -S --needed --noconfirm "${packages[@]}"
+
+# Create fcitx5 config directory
+mkdir -p "$HOME/.config/fcitx5/conf"
+mkdir -p "$HOME/.local/share/fcitx5"
+
+# Backup existing configs if they exist
+if [ -f "$HOME/.config/fcitx5/profile" ]; then
+    echo "Backing up existing profile to profile.backup"
+    cp "$HOME/.config/fcitx5/profile" "$HOME/.config/fcitx5/profile.backup"
+fi
+
+if [ -f "$HOME/.config/fcitx5/config" ]; then
+    echo "Backing up existing global config to config.backup"
+    cp "$HOME/.config/fcitx5/config" "$HOME/.config/fcitx5/config.backup"
+fi
+
+if [ -f "$HOME/.config/fcitx5/conf/pinyin.conf" ]; then
+    echo "Backing up existing pinyin.conf to pinyin.conf.backup"
+    cp "$HOME/.config/fcitx5/conf/pinyin.conf" "$HOME/.config/fcitx5/conf/pinyin.conf.backup"
+fi
+
+if [ -f "$HOME/.config/fcitx5/conf/chttrans.conf" ]; then
+    echo "Backing up existing chttrans.conf to chttrans.conf.backup"
+    cp "$HOME/.config/fcitx5/conf/chttrans.conf" "$HOME/.config/fcitx5/conf/chttrans.conf.backup"
+fi
+
+# Copy configuration files
+echo "Copying fcitx5 configuration files..."
+cp "$DOTFILES_DIR/files/fcitx5/profile" "$HOME/.config/fcitx5/profile"
+cp "$DOTFILES_DIR/files/fcitx5/config" "$HOME/.config/fcitx5/config"
+cp "$DOTFILES_DIR/files/fcitx5/conf/pinyin.conf" "$HOME/.config/fcitx5/conf/pinyin.conf"
+cp "$DOTFILES_DIR/files/fcitx5/conf/chttrans.conf" "$HOME/.config/fcitx5/conf/chttrans.conf"
+
+echo "fcitx5 setup completed!"
+echo ""
+echo "Usage:"
+echo "  - Ctrl+Space: Toggle between English and Chinese input methods"
+echo "  - Shift: Switch between English and Chinese mode within input method"
+echo "  - Ctrl+Shift+F: Toggle Traditional/Simplified Chinese"
+echo ""
+echo "Note: fcitx5 will auto-start with Hyprland (configured in hyprland.conf)"
+echo "      Restart fcitx5: killall fcitx5 && fcitx5 -d"

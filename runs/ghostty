@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+log() {
+    echo "[GHOSTTY] $1"
+}
+
+log "Setting up ghostty terminal emulator..."
+
+# Check if ghostty is already installed
+if command -v ghostty &> /dev/null; then
+    log "ghostty is already installed"
+else
+    log "Installing ghostty..."
+    if command -v pacman >/dev/null 2>&1; then
+        sudo pacman -S --needed --noconfirm ghostty
+    else
+        log "ERROR: No supported package manager found (pacman)"
+        exit 1
+    fi
+fi
+
+# Create config directory if it doesn't exist
+CONFIG_DIR="$HOME/.config/ghostty"
+mkdir -p "$CONFIG_DIR"
+
+# Get the dotfiles directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Create symlink to configuration
+SOURCE_CONFIG="$DOTFILES_DIR/files/ghostty/config"
+TARGET_CONFIG="$CONFIG_DIR/config"
+
+if [ -L "$TARGET_CONFIG" ]; then
+    log "ghostty config symlink already exists"
+elif [ -f "$TARGET_CONFIG" ]; then
+    log "Backing up existing config to $TARGET_CONFIG.backup"
+    mv "$TARGET_CONFIG" "$TARGET_CONFIG.backup"
+    ln -sf "$SOURCE_CONFIG" "$TARGET_CONFIG"
+    log "Created ghostty config symlink (backed up existing config)"
+else
+    ln -sf "$SOURCE_CONFIG" "$TARGET_CONFIG"
+    log "Created ghostty config symlink"
+fi
+
+log "ghostty setup complete!"

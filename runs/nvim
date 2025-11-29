@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Neovim Configuration Run
+# Installs neovim and sets up configuration from git submodule
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "Setting up neovim..."
+
+# Language server dependencies
+dependencies=(
+    "neovim"
+    "nodejs"              # Required for npm and many language servers
+    "npm"                 # Node package manager for LSPs
+    "go"                  # Go toolchain for gopls
+)
+
+echo "Installing neovim and dependencies: ${dependencies[*]}"
+sudo pacman -S --needed --noconfirm "${dependencies[@]}"
+
+echo "neovim and dependencies installed successfully!"
+
+# Initialize and update nvim submodule
+echo "Setting up neovim configuration submodule..."
+cd "$DOTFILES_DIR"
+
+if [ ! -d "files/nvim/.git" ]; then
+    echo "Initializing nvim submodule..."
+    git submodule update --init files/nvim
+else
+    echo "Updating nvim submodule..."
+    git submodule update files/nvim
+fi
+
+# Handle existing nvim configuration
+if [ -e "$HOME/.config/nvim" ]; then
+    if [ -L "$HOME/.config/nvim" ]; then
+        echo "Existing nvim config is already a symlink, removing it"
+        rm "$HOME/.config/nvim"
+    else
+        echo "Backing up existing nvim config to .config/nvim.backup"
+        mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup"
+    fi
+fi
+
+# Create symlink from dotfiles
+echo "Creating symlink to nvim config"
+ln -sf "$DOTFILES_DIR/files/nvim" "$HOME/.config/nvim"
+
+echo "Neovim setup completed!"
+echo "Run 'nvim' to start neovim with your custom configuration."

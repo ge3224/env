@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+
+echo "Installing Tailscale..."
+
+sudo pacman -S --needed --noconfirm tailscale
+
+echo "Tailscale installed!"
+echo "To start using Tailscale, run: sudo systemctl enable --now tailscaled && sudo tailscale up"

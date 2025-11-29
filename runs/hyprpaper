@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# Hyprpaper Configuration Run - Shared
+# Installs hyprpaper and sets up configuration
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "Setting up hyprpaper..."
+
+# Install hyprpaper
+echo "Installing hyprpaper..."
+sudo pacman -S --needed --noconfirm hyprpaper
+
+echo "hyprpaper installed successfully!"
+
+# Create directories if they don't exist
+mkdir -p "$HOME/.config/hypr"
+mkdir -p "$HOME/Pictures/wallpapers"
+mkdir -p "$HOME/.local/bin"
+
+# Backup existing hyprpaper.conf if it exists and isn't a symlink
+if [ -f "$HOME/.config/hypr/hyprpaper.conf" ] && [ ! -L "$HOME/.config/hypr/hyprpaper.conf" ]; then
+    echo "Backing up existing hyprpaper.conf to hyprpaper.conf.backup"
+    cp "$HOME/.config/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf.backup"
+fi
+
+# Install wallpaper randomizer script
+echo "Installing wallpaper randomizer script"
+cp "$DOTFILES_DIR/files/bin/random-wallpaper" "$HOME/.local/bin/random-wallpaper"
+chmod +x "$HOME/.local/bin/random-wallpaper"
+
+# Create symlink from dotfiles
+echo "Creating symlink to hyprpaper.conf"
+ln -sf "$DOTFILES_DIR/files/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf"
+
+echo "Hyprpaper configuration installed successfully!"
+echo ""
+echo "Note: Add wallpapers to ~/Pictures/wallpapers/ for random wallpaper selection"

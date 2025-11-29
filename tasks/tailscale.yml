@@ -1,7 +1,0 @@
----
-
-- name: Install tailscale
-  become: yes
-  community.general.pacman:
-    name: tailscale
-    state: present

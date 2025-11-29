@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+WALLPAPER_DIR="$HOME/Pictures/wallpapers/"
+
+# Get all wallpapers into an array
+mapfile -t wallpapers < <(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.bmp" \))
+
+# Select a random wallpaper using RANDOM
+WALLPAPER="${wallpapers[RANDOM % ${#wallpapers[@]}]}"
+
+if [ -z "$WALLPAPER" ]; then
+    echo "No wallpapers found in $WALLPAPER_DIR"
+    exit 1
+fi
+
+# Apply the selected wallpaper
+hyprctl hyprpaper reload ,"$WALLPAPER"
+
+echo "Set wallpaper to: $(basename "$WALLPAPER")"

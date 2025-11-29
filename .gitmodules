@@ -1,5 +1,5 @@
-[submodule "dotfiles/nvim"]
-	path = dotfiles/nvim
+[submodule "files/nvim"]
+	path = files/nvim
 	url = git@github.com:ge3224/nvimconf.git
 [submodule "aur/zen-browser-bin"]
 	path = aur/zen-browser-bin
@@ -19,8 +19,8 @@
 [submodule "aur/cheat-bin"]
 	path = aur/cheat-bin
 	url = https://aur.archlinux.org/cheat-bin.git
-[submodule "dotfiles/cheatsheets"]
-	path = dotfiles/cheatsheets
+[submodule "files/cheatsheets"]
+	path = files/cheatsheets
 	url = git@github.com:ge3224/cheatsheets.git
 [submodule "aur/google-chrome"]
 	path = aur/google-chrome

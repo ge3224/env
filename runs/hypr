@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Hyprland Configuration Run - Shared
+# Installs Hyprland and creates symlinks to config files
+# Machine-specific settings (like Nvidia) should go in separate scripts
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "Setting up Hyprland configuration..."
+
+# Install Hyprland and hyprshot
+echo "Installing Hyprland and hyprshot..."
+sudo pacman -S --needed --noconfirm hyprland hyprshot
+
+# Create .config/hypr directory if it doesn't exist
+mkdir -p "$HOME/.config/hypr"
+
+# Backup existing hyprland.conf if it exists and isn't a symlink
+if [ -f "$HOME/.config/hypr/hyprland.conf" ] && [ ! -L "$HOME/.config/hypr/hyprland.conf" ]; then
+    echo "Backing up existing hyprland.conf to hyprland.conf.backup"
+    cp "$HOME/.config/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf.backup"
+fi
+
+# Create symlink from dotfiles
+echo "Creating symlink to hyprland.conf"
+ln -sf "$DOTFILES_DIR/files/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
+
+# Create empty local.conf if it doesn't exist (prevents error on source)
+if [ ! -f "$HOME/.config/hypr/local.conf" ]; then
+    echo "Creating empty local.conf for machine-specific overrides"
+    touch "$HOME/.config/hypr/local.conf"
+fi
+
+echo "Hyprland configuration installed successfully!"
+echo ""
+echo "Note: Machine-specific settings can be added to ~/.config/hypr/local.conf"
+echo "      This file is sourced by hyprland.conf and won't be overwritten."

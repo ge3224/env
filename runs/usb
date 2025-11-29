@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+
+echo "Installing USB utilities..."
+
+sudo pacman -S --needed --noconfirm \
+    udisks2 \
+    udiskie \
+    usbutils
+
+echo "USB utilities installed!"
+echo "udiskie can automount USB devices - add it to your startup if needed"

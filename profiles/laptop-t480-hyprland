@@ -1,0 +1,39 @@
+# T480 Laptop Hyprland Profile
+# Scripts to run for ThinkPad T480 laptop with Hyprland/Wayland
+#
+# Lines starting with # are comments
+# Empty lines are ignored
+# List one script name per line
+
+# === Core System ===
+aur
+pacman
+core
+fonts
+
+# === Hardware (T480-specific) ===
+t480
+# keyboard - handled at BIOS level
+
+# === Desktop Environment (Wayland/Hyprland) ===
+hypr
+waybar
+hyprpaper
+fcitx5
+
+# === Shell & Terminal ===
+bash
+ghostty
+tmux
+
+# === Development Tools ===
+dev
+nvim
+
+# === Applications ===
+signal
+tailscale
+usb
+cheat
+pandoc
+printing

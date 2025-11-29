@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+# Font Configuration Run
+# Installs system fonts and sets up fontconfig
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "Setting up font configuration..."
+
+# Font packages - comprehensive coverage for laptop use
+fonts=(
+    # Core fonts
+    "gnu-free-fonts"
+    "noto-fonts"
+    "noto-fonts-emoji"
+    "ttf-dejavu"
+    "ttf-liberation"
+
+    # CJK and international
+    "ttf-arphic-uming"
+    "ttf-baekmuk"
+
+    # Additional coverage
+    "ttf-croscore"
+    "ttf-freefont"
+    "ttf-ibm-plex"
+    "ttf-roboto"
+
+    # Programming fonts with Nerd Font patches
+    "ttf-input"
+    "ttf-input-nerd"
+    "ttf-jetbrains-mono-nerd"
+)
+
+echo "Installing ${#fonts[@]} font packages..."
+sudo pacman -S --needed --noconfirm "${fonts[@]}"
+
+# Setup fontconfig
+echo "Setting up fontconfig..."
+mkdir -p "$HOME/.config/fontconfig"
+
+if [ -f "$DOTFILES_DIR/files/fontconfig/fonts.conf" ]; then
+    ln -sf "$DOTFILES_DIR/files/fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf"
+    echo "Linked fontconfig configuration"
+else
+    echo "Warning: fontconfig file not found at $DOTFILES_DIR/files/fontconfig/fonts.conf"
+fi
+
+# Update font cache
+echo "Updating font cache..."
+fc-cache -fv
+
+echo "Font setup completed!"
+echo ""
+echo "Installed fonts include:"
+echo "- Noto: Comprehensive Unicode coverage with emoji support"
+echo "- DejaVu/Liberation: General purpose fonts"
+echo "- JetBrains Mono Nerd: Programming font with ligatures and icons"
+echo ""
+echo "Run 'fc-list' to see all available fonts"

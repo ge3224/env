@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+
+echo "Installing Pandoc and LaTeX tools..."
+
+sudo pacman -S --needed --noconfirm \
+    pandoc \
+    texlive-core \
+    texlive-bin \
+    texlive-latexextra \
+    texlive-fontsrecommended
+
+echo "Pandoc and LaTeX tools installed!"

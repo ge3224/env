@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+
+echo "Setting up development tools..."
+
+# Install language tools from pacman
+echo "Installing language tools and package managers..."
+sudo pacman -S --needed --noconfirm \
+    dart \
+    go \
+    nodejs \
+    npm \
+    pnpm \
+    opam \
+    python-pip \
+    python-pipx \
+    python-poetry
+
+# Install Deno if not present
+echo "Checking for Deno..."
+if ! command -v deno >/dev/null 2>&1; then
+    echo "Installing Deno..."
+    curl -fsSL https://deno.land/install.sh | sh
+else
+    echo "Deno already installed"
+fi
+
+# Install Rust if not present
+echo "Checking for Rust..."
+if ! command -v rustc >/dev/null 2>&1; then
+    echo "Installing Rust..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    # Source cargo env for current session
+    source "$HOME/.cargo/env"
+else
+    echo "Rust already installed"
+fi
+
+# Initialize opam if necessary
+echo "Checking opam initialization..."
+if [ ! -d "$HOME/.opam" ]; then
+    echo "Initializing opam..."
+    opam init -y
+    eval $(opam env)
+else
+    echo "opam already initialized"
+    eval $(opam env) 2>/dev/null || true
+fi
+
+# Install OCaml tools via opam
+echo "Installing OCaml tools..."
+for pkg in odoc ocamlformat utop; do
+    if ! opam list --installed "$pkg" >/dev/null 2>&1; then
+        echo "Installing $pkg..."
+        opam install -y "$pkg"
+    else
+        echo "$pkg already installed"
+    fi
+done
+
+# Install Docker
+echo "Installing Docker..."
+sudo pacman -S --needed --noconfirm docker docker-compose
+
+# Enable and start Docker service
+echo "Enabling Docker service..."
+sudo systemctl enable --now docker
+
+# Ensure docker group exists
+echo "Setting up Docker group..."
+sudo groupadd -f docker
+
+# Add user to docker group
+echo "Adding $USER to docker group..."
+sudo usermod -aG docker "$USER"
+
+echo "Development tools installed!"
+echo "Note: You may need to log out and back in for group changes to take effect"

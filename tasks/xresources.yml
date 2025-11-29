@@ -1,7 +1,0 @@
----
-
-- name: Create symlink to Xresources
-  file:
-    src: "{{ playbook_dir }}/dotfiles/X11/Xresources"
-    dest: /home/{{ username }}/.config/X11/Xresources
-    state: link

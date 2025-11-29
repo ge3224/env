@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+log() {
+    echo "[GDM] $1"
+}
+
+log "Configuring GDM display manager..."
+
+# Check if GDM is installed
+if ! pacman -Q gdm &>/dev/null; then
+    log "Installing GDM..."
+    sudo pacman -S --noconfirm gdm
+else
+    log "GDM is already installed"
+fi
+
+# Disable LightDM if it's enabled (just in case)
+if systemctl is-enabled lightdm &>/dev/null; then
+    log "Disabling LightDM..."
+    sudo systemctl disable lightdm
+fi
+
+# Enable GDM
+if ! systemctl is-enabled gdm &>/dev/null; then
+    log "Enabling GDM..."
+    sudo systemctl enable gdm
+else
+    log "GDM is already enabled"
+fi
+
+# Hide GNOME sessions since we don't have a full GNOME desktop installed
+log "Hiding GNOME sessions from GDM session selector..."
+
+GNOME_SESSIONS=(
+    "/usr/share/wayland-sessions/gnome.desktop"
+    "/usr/share/wayland-sessions/gnome-wayland.desktop"
+    "/usr/share/wayland-sessions/gnome-classic.desktop"
+    "/usr/share/wayland-sessions/gnome-classic-wayland.desktop"
+    "/usr/share/xsessions/gnome.desktop"
+    "/usr/share/xsessions/gnome-xorg.desktop"
+    "/usr/share/xsessions/gnome-classic.desktop"
+)
+
+for session in "${GNOME_SESSIONS[@]}"; do
+    if [[ -f "$session" ]]; then
+        log "  Disabling $(basename $session)"
+        sudo mv "$session" "${session}.disabled"
+    elif [[ -f "${session}.disabled" ]]; then
+        log "  $(basename $session) already disabled"
+    fi
+done
+
+log "GDM configuration completed!"
+log "Key changes:"
+log "  - GDM installed and enabled"
+log "  - Other display managers disabled (if any)"
+log "  - GNOME sessions hidden (only Hyprland will show)"
+log ""
+log "Reboot to use GDM as your display manager."
+log "Select 'Hyprland (uwsm)' from the session menu when logging in."

@@ -1,0 +1,379 @@
+/*
+* See https://github.com/rebelot/kanagawa.nvim/blob/master/lua/kanagawa/colors.lua
+*/
+
+/* @define-color sumiInk0 #16161D; */
+/* @define-color sumiInk1 #181820; */
+/* @define-color sumiInk2 #1a1a22; */
+/* @define-color sumiInk3 #1F1F28; */
+/* @define-color sumiInk4 #2A2A37; */
+/* @define-color sumiInk5 #363646; */
+/* @define-color sumiInk6 #54546D; */
+/* @define-color waveBlue1 #223249; */
+/* @define-color waveBlue2 #2D4F67; */
+/* @define-color winterGreen #2B3328; */
+/* @define-color winterYellow #49443C; */
+/* @define-color winterRed #43242B; */
+/* @define-color winterBlue #252535; */
+/* @define-color autumnGreen #76946A; */
+/* @define-color autumnRed #C34043; */
+/* @define-color autumnYellow #DCA561; */
+/* @define-color samuraiRed #E82424; */
+/* @define-color roninYellow #FF9E3B; */
+/* @define-color waveAqua1 #6A9589; */
+/* @define-color dragonBlue #658594; */
+/* @define-color oldWhite #C8C093; */
+/* @define-color fujiWhite #DCD7BA; */
+/* @define-color fujiGray #727169; */
+/* @define-color oniViolet #957FB8; */
+/* @define-color oniViolet2 #b8b4d0; */
+/* @define-color crystalBlue #7E9CD8; */
+/* @define-color springViolet1 #938AA9; */
+/* @define-color springViolet2 #9CABCA; */
+/* @define-color springBlue #7FB4CA; */
+/* @define-color lightBlue #A3D4D5; */
+/* @define-color waveAqua2 #7AA89F; */
+/* @define-color springGreen #98BB6C; */
+/* @define-color boatYellow1 #938056; */
+/* @define-color boatYellow2 #C0A36E; */
+/* @define-color carpYellow #E6C384; */
+/* @define-color sakuraPink #D27E99; */
+/* @define-color waveRed #E46876; */
+/* @define-color peachRed #FF5D62; */
+/* @define-color surimiOrange #FFA066; */
+/* @define-color katanaGray #717C7C; */
+/**/
+/* * { */
+/*     font-family: "JetBrainsMono Nerd Font", monospace; */
+/*     font-size: 14px; */
+/*     min-height: 0; */
+/*     padding: 0; */
+/*     border: none; */
+/* } */
+/**/
+/* #waybar { */
+/*     background-color: transparent; */
+/* } */
+/**/
+/* #workspaces { */
+/*     border-radius: 3px; */
+/*     background-color: @waveBlue1; */
+/* } */
+/**/
+/* #workspaces button { */
+/*     padding: 0 0.3rem; */
+/*     background-color: transparent; */
+/*     color: @springBlue; */
+/*     border-radius: 3px; */
+/* } */
+/**/
+/* #workspaces button.active { */
+/*     color: @fujiWhite; */
+/*     background-color: @waveBlue2; */
+/* } */
+/**/
+/* #workspaces button:hover { */
+/*     background-color: @sumiInk3; */
+/*     background-image: none; */
+/*     color: @oldWhite; */
+/*     border-radius: 3px; */
+/*     text-shadow: none; */
+/*     box-shadow: none; */
+/* } */
+/**/
+/* #workspaces button.urgent { */
+/*     color: @samuraiRed; */
+/*     background-color: @winterRed; */
+/* } */
+/**/
+/* #tray, */
+/* #clock, */
+/* #wireplumber, */
+/* #network, */
+/* #cpu, */
+/* #memory, */
+/* #temperature { */
+/*     background-color: @waveBlue1; */
+/*     padding: 0.3rem 0.6rem; */
+/*     border-radius: 3px; */
+/* } */
+/**/
+/* #clock { */
+/*     color: @springBlue; */
+/*     border-radius: 3px; */
+/*     margin-right: 1rem; */
+/* } */
+/**/
+/* #wireplumber { */
+/*     color: @springGreen; */
+/*     border-radius: 3px; */
+/*     margin-left: 1rem; */
+/* } */
+/**/
+/* #wireplumber.muted { */
+/*     color: @fujiGray; */
+/* } */
+/**/
+/* #wireplumber.low { */
+/*     color: @springBlue; */
+/* } */
+/**/
+/* #wireplumber.medium { */
+/*     color: @carpYellow; */
+/* } */
+/**/
+/* #wireplumber.high { */
+/*     color: @samuraiRed; */
+/* } */
+/**/
+/* #network { */
+/*     color: @springBlue; */
+/*     margin-left: 0.5rem; */
+/*     padding-right: 0.3rem; */
+/*     padding-left: 0.7rem; */
+/* } */
+/**/
+/* #network.disconnected { */
+/*     color: @samuraiRed; */
+/* } */
+/**/
+/* #cpu { */
+/*     color: @springBlue; */
+/*     margin-left: 0.5rem; */
+/* } */
+/**/
+/* #cpu.warning { */
+/*     color: @roninYellow; */
+/* } */
+/**/
+/* #cpu.critical { */
+/*     color: @samuraiRed; */
+/* } */
+/**/
+/* #memory { */
+/*     color: @springBlue; */
+/*     margin-left: 0.5rem; */
+/* } */
+/**/
+/* #memory.warning { */
+/*     color: @roninYellow; */
+/* } */
+/**/
+/* #memory.critical { */
+/*     color: @samuraiRed; */
+/* } */
+/**/
+/* #temperature { */
+/*     color: @springBlue; */
+/*     margin-left: 0.5rem; */
+/* } */
+/**/
+/* #temperature.critical { */
+/*     color: @samuraiRed; */
+/* } */
+
+/*
+* Thrasher Magazine inspired color scheme
+* Based on the iconic skateboard magazine's black, yellow, red, and orange palette
+*/
+
+@define-color charcoalBlack #1C1C1C;
+@define-color deepBlack #0F0F0F;
+@define-color inkBlack #000000;
+@define-color shadowGray #2C2C2C;
+@define-color darkGray #3A3A3A;
+@define-color mediumGray #4A4A4A;
+@define-color lightGray #666666;
+@define-color flameYellow #FFD700;
+@define-color brightYellow #FFEB3B;
+@define-color warmYellow #FFC107;
+@define-color hotOrange #FF6F00;
+@define-color blazeOrange #FF8F00;
+@define-color fireRed #FF3D00;
+@define-color burnRed #D32F2F;
+@define-color darkRed #B71C1C;
+@define-color ashWhite #E8E8E8;
+@define-color smokeWhite #F5F5F5;
+@define-color pureWhite #FFFFFF;
+@define-color emberGlow #FF5722;
+@define-color streetGray #757575;
+@define-color concreteGray #9E9E9E;
+@define-color urbanGray #BDBDBD;
+@define-color streetBlue #1976D2;
+@define-color skateBlue #2196F3;
+@define-color concreteBlue #455A64;
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 14px;  /* Default: can be overridden in local.css */
+    min-height: 0;
+    padding: 0;
+    border: none;
+}
+
+#waybar {
+    background-color: transparent;
+}
+
+#workspaces {
+    border-radius: 2px;
+    background-color: @charcoalBlack;
+}
+
+#workspaces button {
+    padding: 0 0.3rem;
+    background-color: transparent;
+    color: @urbanGray;
+    border-radius: 2px;
+}
+
+#workspaces button.active {
+    color: @inkBlack;
+    background-color: @skateBlue;
+}
+
+#workspaces button:hover {
+    background-color: @shadowGray;
+    background-image: none;
+    color: @brightYellow;
+    border-radius: 2px;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+#workspaces button.urgent {
+    color: @pureWhite;
+    background-color: @fireRed;
+}
+
+#tray,
+#clock,
+#wireplumber,
+#network,
+#battery,
+#cpu,
+#memory,
+#temperature {
+    background-color: @charcoalBlack;
+    padding: 0.3rem 0.6rem;
+    border-radius: 2px;
+}
+
+#clock {
+    color: @urbanGray;
+    margin-right: 1rem;
+    border-radius: 2px;
+}
+
+#wireplumber {
+    color: @urbanGray;
+    border-radius: 2px;
+    margin-left: 1rem;
+}
+
+#wireplumber.muted {
+    color: @ashWhite;
+}
+
+#wireplumber.low {
+    color: @urbanGray;
+}
+
+#wireplumber.medium {
+    color: @urbanGray;
+}
+
+#wireplumber.high {
+    color: @fireRed;
+}
+
+#network {
+    color: @urbanGray;
+    margin-left: 0.5rem;
+    padding-right: 0.3rem;
+    padding-left: 0.7rem;
+}
+
+#network.disconnected {
+    color: @fireRed;
+}
+
+#cpu {
+    color: @urbanGray;
+    margin-left: 0.5rem;
+}
+
+#cpu.warning {
+    color: @hotOrange;
+}
+
+#cpu.critical {
+    color: @fireRed;
+}
+
+#memory {
+    color: @urbanGray;
+    margin-left: 0.5rem;
+}
+
+#memory.warning {
+    color: @hotOrange;
+}
+
+#memory.critical {
+    color: @fireRed;
+}
+
+#temperature {
+    color: @urbanGray;
+    margin-left: 0.5rem;
+}
+
+#temperature.critical {
+    color: @fireRed;
+}
+
+#custom-fcitx5 {
+    background-color: @charcoalBlack;
+    padding: 0.3rem 0.6rem;
+    border-radius: 2px;
+    color: @urbanGray;
+    margin-left: 1rem;
+}
+
+#custom-fcitx5.chinese {
+    color: @flameYellow;
+}
+
+#custom-fcitx5.english {
+    color: @skateBlue;
+}
+@import "local.css";
+
+#battery {
+    color: @urbanGray;
+    margin-left: 0.5rem;
+}
+
+#battery.charging {
+    color: @springGreen;
+}
+
+#battery.plugged {
+    color: @urbanGray;
+}
+
+#battery.warning:not(.charging) {
+    color: @hotOrange;
+}
+
+#battery.critical:not(.charging) {
+    color: @fireRed;
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    to {
+        opacity: 0.5;
+    }
+}
