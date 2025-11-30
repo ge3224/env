@@ -28,11 +28,18 @@ fi
 echo "Creating symlink to hyprland.conf"
 ln -sf "$DOTFILES_DIR/files/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
 
-# Create empty local.conf if it doesn't exist (prevents error on source)
-if [ ! -f "$HOME/.config/hypr/local.conf" ]; then
-    echo "Creating empty local.conf for machine-specific overrides"
-    touch "$HOME/.config/hypr/local.conf"
-fi
+# Create local.conf with T480 laptop-specific settings
+echo "Creating local.conf with T480 monitor configuration"
+cat > "$HOME/.config/hypr/local.conf" << 'EOF'
+# Machine-specific Hyprland configuration
+# This file is sourced by the main hyprland.conf
+
+# Monitor configuration for T480 laptop
+# Format: monitor=name,resolution@refresh,position,scale
+# eDP-1 is the built-in laptop display
+# Scale set to 1.25 (auto-detection defaults to 1.5x which is too large, 1.0 is too small)
+monitor=eDP-1,1920x1080@60,0x0,1.25
+EOF
 
 echo "Hyprland configuration installed successfully!"
 echo ""

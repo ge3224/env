@@ -20,6 +20,7 @@ hypr
 waybar
 hyprpaper
 fcitx5
+gtk
 
 # === Shell & Terminal ===
 bash
