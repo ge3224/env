@@ -8,6 +8,7 @@
 # === Core System ===
 aur
 pacman
+reflector
 core
 fonts
 

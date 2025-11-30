@@ -1,63 +1,79 @@
 #!/usr/bin/env bash
 
-# Font Configuration Run
-# Installs system fonts and sets up fontconfig
-
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+echo "Setting up comprehensive font configuration..."
 
-echo "Setting up font configuration..."
+# Essential font packages for good Unicode coverage and compatibility
+FONT_PACKAGES=(
+    # Core TrueType fonts
+    "ttf-dejavu"          # DejaVu fonts - excellent Unicode coverage
+    "ttf-liberation"      # Liberation fonts - metric-compatible with Arial, Times New Roman, Courier New
+    "noto-fonts"          # Google Noto fonts - comprehensive Unicode coverage
+    "noto-fonts-emoji"    # Emoji support
+    "noto-fonts-cjk"      # Chinese, Japanese, Korean support
 
-# Font packages - comprehensive coverage for laptop use
-fonts=(
-    # Core fonts
-    "gnu-free-fonts"
-    "noto-fonts"
-    "noto-fonts-emoji"
-    "ttf-dejavu"
-    "ttf-liberation"
-
-    # CJK and international
-    "ttf-arphic-uming"
-    "ttf-baekmuk"
+    # Programming fonts
+    "ttf-firacode-nerd"   # FiraCode with Nerd Font patches for coding
+    "ttf-jetbrains-mono-nerd" # JetBrains Mono with Nerd Font patches
+    "ttf-sourcecodepro-nerd" # Source Code Pro with Nerd Font patches
 
     # Additional coverage
-    "ttf-croscore"
-    "ttf-freefont"
-    "ttf-ibm-plex"
-    "ttf-roboto"
+    "ttf-opensans"        # Open Sans
+    "ttf-roboto"          # Roboto family
+    "ttf-ubuntu-font-family" # Ubuntu fonts
 
-    # Programming fonts with Nerd Font patches
-    "ttf-input"
-    "ttf-input-nerd"
-    "ttf-jetbrains-mono-nerd"
+    # Console fonts
+    "terminus-font"       # Good bitmap font for console
+    "ttf-inconsolata"     # Good monospace font
 )
 
-echo "Installing ${#fonts[@]} font packages..."
-sudo pacman -S --needed --noconfirm "${fonts[@]}"
-
-# Setup fontconfig
-echo "Setting up fontconfig..."
-mkdir -p "$HOME/.config/fontconfig"
-
-if [ -f "$DOTFILES_DIR/files/fontconfig/fonts.conf" ]; then
-    ln -sf "$DOTFILES_DIR/files/fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf"
-    echo "Linked fontconfig configuration"
-else
-    echo "Warning: fontconfig file not found at $DOTFILES_DIR/files/fontconfig/fonts.conf"
-fi
+# Install fonts
+echo "Installing font packages..."
+for package in "${FONT_PACKAGES[@]}"; do
+    if ! pacman -Qs "$package" > /dev/null; then
+        echo "Installing $package..."
+        sudo pacman -S --needed --noconfirm "$package" || {
+            echo "Warning: Failed to install $package, continuing..."
+        }
+    else
+        echo "$package already installed"
+    fi
+done
 
 # Update font cache
 echo "Updating font cache..."
 fc-cache -fv
 
+# Set console font
+echo "Setting console font..."
+if [[ -f /usr/share/kbd/consolefonts/ter-116n.psf.gz ]]; then
+    sudo setfont ter-116n
+    echo "FONT=ter-116n" | sudo tee /etc/vconsole.conf
+else
+    echo "Warning: Terminus font not found, using default console font"
+fi
+
+# Link fontconfig files
+echo "Setting up fontconfig..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+mkdir -p "$HOME/.config/fontconfig"
+if [[ -f "$DOTFILES_DIR/files/fontconfig/fonts.conf" ]]; then
+    ln -sf "$DOTFILES_DIR/files/fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf"
+    echo "Linked fontconfig configuration"
+else
+    echo "Warning: fontconfig file not found"
+fi
+
 echo "Font setup completed!"
 echo ""
-echo "Installed fonts include:"
-echo "- Noto: Comprehensive Unicode coverage with emoji support"
-echo "- DejaVu/Liberation: General purpose fonts"
-echo "- JetBrains Mono Nerd: Programming font with ligatures and icons"
+echo "Installed fonts summary:"
+echo "- DejaVu: General purpose with excellent Unicode coverage"
+echo "- Liberation: Metric-compatible with MS Office fonts"
+echo "- Noto: Google's comprehensive Unicode font family"
+echo "- FiraCode/JetBrains Mono: Programming fonts with ligatures"
+echo "- Terminus: High-quality console font"
 echo ""
 echo "Run 'fc-list' to see all available fonts"
+echo "Run 'fc-match font-name' to test font matching"

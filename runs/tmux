@@ -25,5 +25,16 @@ fi
 echo "Creating symlink to tmux.conf"
 ln -sf "$DOTFILES_DIR/files/tmux/.tmux.conf" "$HOME/.tmux.conf"
 
+# Install tmux-sessionizer
+echo "Installing tmux-sessionizer..."
+mkdir -p "$HOME/.local/bin"
+ln -sf "$DOTFILES_DIR/files/bin/tmux-sessionizer" "$HOME/.local/bin/tmux-sessionizer"
+
+# Install tmux-sessionizer config
+echo "Installing tmux-sessionizer config..."
+mkdir -p "$HOME/.config/tmux-sessionizer"
+ln -sf "$DOTFILES_DIR/files/tmux-sessionizer/tmux-sessionizer.conf" "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf"
+
 echo "Tmux configuration installed successfully!"
 echo "Start a new tmux session with 'tmux' to use the new configuration."
+echo "Press <prefix> + f to use tmux-sessionizer for fuzzy project switching."
