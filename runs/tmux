@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Tmux Configuration Run
-# Installs tmux and symlinks custom tmux.conf file
+# Installs tmux if not present and symlinks custom tmux.conf file
 
 set -euo pipefail
 
@@ -23,7 +23,7 @@ fi
 
 # Create symlink from dotfiles
 echo "Creating symlink to tmux.conf"
-ln -sf "$DOTFILES_DIR/files/tmux/.tmux.conf" "$HOME/.tmux.conf"
+ln -sf "$DOTFILES_DIR/files/tmux/tmux.conf" "$HOME/.tmux.conf"
 
 # Install tmux-sessionizer
 echo "Installing tmux-sessionizer..."

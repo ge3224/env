@@ -7,8 +7,8 @@
 
 # === Core System ===
 aur
-pacman
 reflector
+pacman
 core
 fonts
 
@@ -30,7 +30,7 @@ tmux
 
 # === Development Tools ===
 dev
-nvim
+neovim
 
 # === Applications ===
 signal

@@ -1,14 +1,28 @@
 #!/usr/bin/env bash
 
+# USB Auto-mount Configuration Run
+# Installs USB utilities for automatic mounting
+
 set -euo pipefail
 
+echo "Setting up USB auto-mount utilities..."
 
-echo "Installing USB utilities..."
+# USB utilities packages
+packages=(
+    "udisks2"               # Disk management service
+    "udiskie"               # Auto-mount daemon
+    "usbutils"              # USB detection utilities (lsusb, etc.)
+)
 
-sudo pacman -S --needed --noconfirm \
-    udisks2 \
-    udiskie \
-    usbutils
+echo "Installing packages: ${packages[*]}"
 
-echo "USB utilities installed!"
-echo "udiskie can automount USB devices - add it to your startup if needed"
+if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --needed --noconfirm "${packages[@]}"
+else
+    echo "ERROR: No supported package manager found (pacman)"
+    exit 1
+fi
+
+echo "USB auto-mount utilities installed successfully!"
+echo "To enable automatic USB mounting, add 'exec-once = udiskie --automount --notify --tray' to your Hyprland config."
+echo "Or run 'udiskie &' manually to start the auto-mount daemon."

@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
-# fcitx5 Configuration Run - Shared
-# Sets up fcitx5 input method framework for Chinese input
-
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 
-echo "Setting up fcitx5 input method framework..."
+log() {
+    echo "[FCITX5] $1"
+}
+
+log "Setting up fcitx5 input method framework..."
 
 # fcitx5 packages
 packages=(
@@ -19,47 +20,94 @@ packages=(
     "fcitx5-chinese-addons"     # Pinyin input method with Traditional Chinese support
 )
 
-echo "Installing fcitx5 packages..."
-sudo pacman -S --needed --noconfirm "${packages[@]}"
+# Function to check if a package is installed
+is_package_installed() {
+    pacman -Q "$1" >/dev/null 2>&1
+}
+
+# Function to install missing packages
+install_missing_packages() {
+    local package_list=("$@")
+    local missing_packages=()
+
+    for package in "${package_list[@]}"; do
+        if ! is_package_installed "$package"; then
+            missing_packages+=("$package")
+        else
+            log "Package $package is already installed, skipping"
+        fi
+    done
+
+    if [[ ${#missing_packages[@]} -gt 0 ]]; then
+        log "Installing missing packages: ${missing_packages[*]}"
+        sudo pacman -S --needed --noconfirm "${missing_packages[@]}"
+    else
+        log "All packages are already installed"
+    fi
+}
+
+if command -v pacman >/dev/null 2>&1; then
+    install_missing_packages "${packages[@]}"
+else
+    log "ERROR: No supported package manager found (pacman)"
+    exit 1
+fi
 
 # Create fcitx5 config directory
 mkdir -p "$HOME/.config/fcitx5/conf"
 mkdir -p "$HOME/.local/share/fcitx5"
 
-# Backup existing configs if they exist
+# Backup existing profile if it exists
 if [ -f "$HOME/.config/fcitx5/profile" ]; then
-    echo "Backing up existing profile to profile.backup"
+    log "Backing up existing profile to profile.backup"
     cp "$HOME/.config/fcitx5/profile" "$HOME/.config/fcitx5/profile.backup"
 fi
 
-if [ -f "$HOME/.config/fcitx5/config" ]; then
-    echo "Backing up existing global config to config.backup"
-    cp "$HOME/.config/fcitx5/config" "$HOME/.config/fcitx5/config.backup"
-fi
+# Copy profile configuration
+log "Copying fcitx5 profile (English + Pinyin)"
+cp "$DOTFILES_DIR/files/fcitx5/profile" "$HOME/.config/fcitx5/profile"
 
+# Backup existing pinyin.conf if it exists
 if [ -f "$HOME/.config/fcitx5/conf/pinyin.conf" ]; then
-    echo "Backing up existing pinyin.conf to pinyin.conf.backup"
+    log "Backing up existing pinyin.conf to pinyin.conf.backup"
     cp "$HOME/.config/fcitx5/conf/pinyin.conf" "$HOME/.config/fcitx5/conf/pinyin.conf.backup"
 fi
 
+# Copy Pinyin configuration (Traditional Chinese output)
+log "Copying Pinyin configuration with Traditional Chinese output"
+cp "$DOTFILES_DIR/files/fcitx5/conf/pinyin.conf" "$HOME/.config/fcitx5/conf/pinyin.conf"
+
+# Backup existing chttrans.conf if it exists
 if [ -f "$HOME/.config/fcitx5/conf/chttrans.conf" ]; then
-    echo "Backing up existing chttrans.conf to chttrans.conf.backup"
+    log "Backing up existing chttrans.conf to chttrans.conf.backup"
     cp "$HOME/.config/fcitx5/conf/chttrans.conf" "$HOME/.config/fcitx5/conf/chttrans.conf.backup"
 fi
 
-# Copy configuration files
-echo "Copying fcitx5 configuration files..."
-cp "$DOTFILES_DIR/files/fcitx5/profile" "$HOME/.config/fcitx5/profile"
-cp "$DOTFILES_DIR/files/fcitx5/config" "$HOME/.config/fcitx5/config"
-cp "$DOTFILES_DIR/files/fcitx5/conf/pinyin.conf" "$HOME/.config/fcitx5/conf/pinyin.conf"
+# Copy Chinese Traditional/Simplified conversion configuration
+log "Copying chttrans configuration (Ctrl+Shift+F to toggle)"
 cp "$DOTFILES_DIR/files/fcitx5/conf/chttrans.conf" "$HOME/.config/fcitx5/conf/chttrans.conf"
 
-echo "fcitx5 setup completed!"
-echo ""
-echo "Usage:"
-echo "  - Ctrl+Space: Toggle between English and Chinese input methods"
-echo "  - Shift: Switch between English and Chinese mode within input method"
-echo "  - Ctrl+Shift+F: Toggle Traditional/Simplified Chinese"
-echo ""
-echo "Note: fcitx5 will auto-start with Hyprland (configured in hyprland.conf)"
-echo "      Restart fcitx5: killall fcitx5 && fcitx5 -d"
+# Backup existing global config if it exists
+if [ -f "$HOME/.config/fcitx5/config" ]; then
+    log "Backing up existing global config to config.backup"
+    cp "$HOME/.config/fcitx5/config" "$HOME/.config/fcitx5/config.backup"
+fi
+
+# Copy global fcitx5 configuration
+log "Copying fcitx5 global configuration (Ctrl+Space trigger key)"
+cp "$DOTFILES_DIR/files/fcitx5/config" "$HOME/.config/fcitx5/config"
+
+log "fcitx5 setup completed!"
+log ""
+log "Usage:"
+log "  - Ctrl+Space: Toggle between English and Chinese input methods"
+log "  - Shift: Switch between English and Chinese mode within input method"
+log ""
+log "Pinyin for Traditional Chinese:"
+log "  - Pinyin input method configured to output Traditional Chinese"
+log "  - Type pinyin to get Traditional Chinese characters"
+log "  - Example: 'nihao' → 你好"
+log ""
+log "Customization:"
+log "  - Run 'fcitx5-configtool' to change hotkeys or other settings"
+log "  - Restart fcitx5 after making changes: killall fcitx5 && fcitx5 -d"

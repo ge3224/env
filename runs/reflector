@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Setting up reflector for fast mirror selection..."
+
+# Install reflector if not present
+if ! command -v reflector >/dev/null 2>&1; then
+    echo "Installing reflector..."
+    sudo pacman -S --needed --noconfirm reflector
+else
+    echo "reflector is already installed"
+fi
+
+# Backup current mirrorlist
+if [ -f /etc/pacman.d/mirrorlist ] && [ ! -f /etc/pacman.d/mirrorlist.backup ]; then
+    echo "Backing up current mirrorlist..."
+    sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+fi
+
+# Run reflector to update mirrorlist
+echo "Updating mirrorlist with recently synced mirrors..."
+sudo reflector \
+    --latest 10 \
+    --protocol https \
+    --sort age \
+    --save /etc/pacman.d/mirrorlist
+
+echo "Mirrorlist updated successfully!"
+echo ""
+echo "Top 5 mirrors now in use:"
+grep "^Server" /etc/pacman.d/mirrorlist | head -5 || true
+echo ""
+echo "Using 10 most recently synced HTTPS mirrors (sorted by sync age)."
+echo "For speed-tested mirrors, run manually:"
+echo "  sudo reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
+echo ""
+echo "Backup of original mirrorlist saved to /etc/pacman.d/mirrorlist.backup"
