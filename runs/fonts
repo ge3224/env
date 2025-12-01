@@ -18,7 +18,8 @@ FONT_PACKAGES=(
     "ttf-jetbrains-mono-nerd" # JetBrains Mono with Nerd Font patches
     "ttf-sourcecodepro-nerd" # Source Code Pro with Nerd Font patches
 
-    # Additional coverage
+    # UI fonts
+    "inter-font"          # Inter - modern UI font used by Electron apps
     "ttf-opensans"        # Open Sans
     "ttf-roboto"          # Roboto family
     "ttf-ubuntu-font-family" # Ubuntu fonts

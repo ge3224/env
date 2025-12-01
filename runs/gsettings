@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "Configuring GNOME/GTK settings via gsettings..."
+
+# Check if gsettings is available
+if ! command -v gsettings >/dev/null 2>&1; then
+    echo "gsettings not found, installing gsettings-desktop-schemas..."
+    sudo pacman -S --needed --noconfirm gsettings-desktop-schemas
+fi
+
+# Font settings - using larger fonts to compensate for 1.0 scaling
+echo "Setting font sizes..."
+gsettings set org.gnome.desktop.interface font-name 'Sans 11'
+gsettings set org.gnome.desktop.interface document-font-name 'Sans 11'
+gsettings set org.gnome.desktop.interface monospace-font-name 'Monospace 11'
+
+# Font rendering settings
+echo "Setting font rendering..."
+gsettings set org.gnome.desktop.interface font-antialiasing 'rgba'
+gsettings set org.gnome.desktop.interface font-hinting 'full'
+
+# GTK theme settings
+echo "Setting GTK theme..."
+gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+gsettings set org.gnome.desktop.interface icon-theme 'Adwaita'
+gsettings set org.gnome.desktop.interface cursor-theme 'Adwaita'
+gsettings set org.gnome.desktop.interface cursor-size 24
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+
+# Text scaling (1.0 = 100%, use this instead of fractional display scaling)
+echo "Setting text scaling factor..."
+gsettings set org.gnome.desktop.interface text-scaling-factor 1.0
+
+echo ""
+echo "gsettings configuration complete!"
+echo ""
+echo "Current font settings:"
+echo "  Interface font: $(gsettings get org.gnome.desktop.interface font-name)"
+echo "  Document font:  $(gsettings get org.gnome.desktop.interface document-font-name)"
+echo "  Monospace font: $(gsettings get org.gnome.desktop.interface monospace-font-name)"
+echo "  Text scaling:   $(gsettings get org.gnome.desktop.interface text-scaling-factor)"
+echo ""
+echo "To increase fonts further, you can:"
+echo "  gsettings set org.gnome.desktop.interface font-name 'Sans 12'"
+echo "  gsettings set org.gnome.desktop.interface text-scaling-factor 1.15"

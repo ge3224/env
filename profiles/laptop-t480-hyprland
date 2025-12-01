@@ -6,6 +6,7 @@
 # List one script name per line
 
 # === Core System ===
+ssh-agent
 aur
 reflector
 pacman
@@ -22,6 +23,7 @@ waybar
 hyprpaper
 fcitx5
 gtk
+gsettings
 
 # === Shell & Terminal ===
 bash

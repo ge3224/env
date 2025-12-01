@@ -79,3 +79,6 @@ source "$HOME/.cargo/env"
 # Go
 export PATH="$PATH:$(go env GOPATH)/bin"
 export EDITOR=nvim
+
+# SSH agent via keychain - automatically loads SSH keys
+eval $(keychain --eval --quiet id_ed25519)
