@@ -2,7 +2,7 @@
 # Hotkey to toggle input methods
 
 # Trigger Input Method
-TriggerKeys=
+TriggerKeys=Control+space
 # Enumerate when press trigger key repeatedly
 EnumerateForwardKeys=
 EnumerateBackwardKeys=
