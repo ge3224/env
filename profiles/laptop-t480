@@ -15,7 +15,7 @@ fonts
 
 # === Hardware (T480-specific) ===
 t480
-# keyboard - handled at BIOS level
+# keyboard - CapsLock->Esc mapping configured in hyprland.conf (kb_options)
 
 # === Desktop Environment (Wayland/Hyprland) ===
 hypr
