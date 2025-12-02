@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Detecting timezone based on current location..."
+
+# Get current timezone
+current_tz=$(timedatectl show --property=Timezone --value)
+echo "Current timezone: $current_tz"
+echo ""
+
+# Detect timezone using IP geolocation
+echo "Querying IP geolocation service..."
+detected_tz=$(curl -s https://ipapi.co/timezone)
+
+if [ -z "$detected_tz" ]; then
+    echo "ERROR: Failed to detect timezone from IP geolocation"
+    echo "Please check your internet connection and try again"
+    exit 1
+fi
+
+echo "Detected timezone: $detected_tz"
+echo ""
+
+# Check if timezone needs updating
+if [ "$current_tz" = "$detected_tz" ]; then
+    echo "Timezone is already correct - no change needed"
+    local_time=$(timedatectl show --property=LocalTime --value)
+    echo "Current local time: $local_time"
+else
+    echo "Updating timezone from $current_tz to $detected_tz..."
+    sudo timedatectl set-timezone "$detected_tz"
+    echo "Timezone updated successfully!"
+    echo ""
+    local_time=$(timedatectl show --property=LocalTime --value)
+    echo "New local time: $local_time"
+fi
