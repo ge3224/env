@@ -7,12 +7,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up hyprpaper..."
 
 # Install hyprpaper
 echo "Installing hyprpaper..."
-sudo pacman -S --needed --noconfirm hyprpaper
+install_packages hyprpaper
 
 echo "hyprpaper installed successfully!"
 
@@ -31,6 +32,12 @@ fi
 echo "Installing wallpaper randomizer script"
 cp "$DOTFILES_DIR/files/bin/random-wallpaper" "$HOME/.local/bin/random-wallpaper"
 chmod +x "$HOME/.local/bin/random-wallpaper"
+
+# Copy default wallpaper from assets to Pictures/wallpapers
+if [ -f "$DOTFILES_DIR/assets/hanzi.jpg" ]; then
+    echo "Copying default wallpaper to ~/Pictures/wallpapers/"
+    cp "$DOTFILES_DIR/assets/hanzi.jpg" "$HOME/Pictures/wallpapers/hanzi.jpg"
+fi
 
 # Create symlink from dotfiles
 echo "Creating symlink to hyprpaper.conf"

@@ -4,6 +4,10 @@
 # Lines starting with # are comments
 # Empty lines are ignored
 # List one script name per line
+# Config variables: key=value (will be exported as PROFILE_KEY env var)
+
+# === Configuration ===
+waybar.style=files/waybar/style-laptop.css
 
 # === Core System ===
 ssh-agent

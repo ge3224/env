@@ -3,13 +3,14 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Configuring GNOME/GTK settings via gsettings..."
 
 # Check if gsettings is available
 if ! command -v gsettings >/dev/null 2>&1; then
     echo "gsettings not found, installing gsettings-desktop-schemas..."
-    sudo pacman -S --needed --noconfirm gsettings-desktop-schemas
+    install_packages gsettings-desktop-schemas
 fi
 
 # Font settings - using larger fonts to compensate for 1.0 scaling

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
+
 log() {
     echo "[GDM] $1"
 }
@@ -7,12 +10,8 @@ log() {
 log "Configuring GDM display manager..."
 
 # Check if GDM is installed
-if ! pacman -Q gdm &>/dev/null; then
-    log "Installing GDM..."
-    sudo pacman -S --noconfirm gdm
-else
-    log "GDM is already installed"
-fi
+log "Installing GDM..."
+install_packages_with_log "GDM" gdm
 
 # Disable SDDM if it's enabled (migration from SDDM)
 if systemctl is-enabled sddm &>/dev/null; then

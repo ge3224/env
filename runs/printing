@@ -2,12 +2,14 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up CUPS printing system..."
 
 # Install CUPS and tools
 echo "Installing CUPS..."
-sudo pacman -S --needed --noconfirm \
+install_packages \
     cups \
     cups-pdf \
     system-config-printer \
@@ -16,7 +18,7 @@ sudo pacman -S --needed --noconfirm \
 
 # Install printer drivers
 echo "Installing printer drivers..."
-sudo pacman -S --needed --noconfirm \
+install_packages \
     gutenprint \
     hplip \
     splix

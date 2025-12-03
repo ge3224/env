@@ -2,12 +2,14 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up development tools..."
 
 # Install language tools from pacman
 echo "Installing language tools and package managers..."
-sudo pacman -S --needed --noconfirm \
+install_packages \
     dart \
     go \
     nodejs \
@@ -62,7 +64,7 @@ done
 
 # Install Docker
 echo "Installing Docker..."
-sudo pacman -S --needed --noconfirm docker docker-compose
+install_packages docker docker-compose
 
 # Enable and start Docker service
 echo "Enabling Docker service..."

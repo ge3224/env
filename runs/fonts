@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
+
 echo "Setting up comprehensive font configuration..."
 
 # Essential font packages for good Unicode coverage and compatibility
@@ -31,16 +34,7 @@ FONT_PACKAGES=(
 
 # Install fonts
 echo "Installing font packages..."
-for package in "${FONT_PACKAGES[@]}"; do
-    if ! pacman -Qs "$package" > /dev/null; then
-        echo "Installing $package..."
-        sudo pacman -S --needed --noconfirm "$package" || {
-            echo "Warning: Failed to install $package, continuing..."
-        }
-    else
-        echo "$package already installed"
-    fi
-done
+install_packages "${FONT_PACKAGES[@]}"
 
 # Update font cache
 echo "Updating font cache..."

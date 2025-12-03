@@ -3,16 +3,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up SSH agent with keychain for automatic key loading..."
 
 # Install keychain for SSH key management
-if ! pacman -Qs keychain >/dev/null 2>&1; then
-    echo "Installing keychain..."
-    sudo pacman -S --needed --noconfirm keychain
-else
-    echo "keychain already installed"
-fi
+echo "Installing keychain..."
+install_packages keychain
 
 # Configure keychain in .bashrc
 if ! grep -q "keychain.*id_ed25519" "$HOME/.bashrc" 2>/dev/null; then

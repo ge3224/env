@@ -2,9 +2,11 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Installing Signal Desktop..."
 
-sudo pacman -S --needed --noconfirm signal-desktop
+install_packages signal-desktop
 
 echo "Signal Desktop installed!"

@@ -2,10 +2,12 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Installing Pandoc and LaTeX tools..."
 
-sudo pacman -S --needed --noconfirm \
+install_packages \
     pandoc \
     texlive-core \
     texlive-bin \

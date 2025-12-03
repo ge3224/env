@@ -7,12 +7,12 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up waybar configuration..."
 
-# Install waybar
 echo "Installing waybar..."
-sudo pacman -S --needed --noconfirm waybar
+install_packages waybar
 
 # Create waybar config directory
 mkdir -p "$HOME/.config/waybar"
@@ -45,15 +45,20 @@ ln -sf "$DOTFILES_DIR/files/waybar/style.css" "$HOME/.config/waybar/style.css"
 ln -sf "$DOTFILES_DIR/files/waybar/fcitx5-indicator.sh" "$HOME/.config/waybar/fcitx5-indicator.sh"
 chmod +x "$HOME/.config/waybar/fcitx5-indicator.sh"
 
-# Create machine-specific style overrides based on profile
-if [ -f "$DOTFILES_DIR/.profile" ]; then
-    PROFILE=$(cat "$DOTFILES_DIR/.profile")
-    echo "Detected profile: $PROFILE"
-
-    echo "Creating empty local.css (using default styles)"
-    touch "$HOME/.config/waybar/local.css"
+# Create machine-specific style overrides
+# Check if profile specified a custom style file via PROFILE_WAYBAR_STYLE env var
+if [ -n "${PROFILE_WAYBAR_STYLE:-}" ]; then
+    STYLE_SOURCE="$DOTFILES_DIR/$PROFILE_WAYBAR_STYLE"
+    if [ -f "$STYLE_SOURCE" ]; then
+        echo "Symlinking profile-specific style: $PROFILE_WAYBAR_STYLE"
+        ln -sf "$STYLE_SOURCE" "$HOME/.config/waybar/local.css"
+    else
+        echo "Warning: Profile specified style file not found: $PROFILE_WAYBAR_STYLE"
+        echo "Creating empty local.css instead"
+        touch "$HOME/.config/waybar/local.css"
+    fi
 else
-    echo "No profile detected, creating empty local.css"
+    echo "No profile-specific style configured, creating empty local.css"
     touch "$HOME/.config/waybar/local.css"
 fi
 

@@ -17,8 +17,14 @@ sudo sed -i '/^#\[multilib\]$/,/^#Include = \/etc\/pacman.d\/mirrorlist$/ {
     s/^#Include = \/etc\/pacman.d\/mirrorlist$/Include = \/etc\/pacman.d\/mirrorlist/
 }' /etc/pacman.conf
 
-# Run system update
-echo "Running system update..."
-sudo pacman -Syu --noconfirm
+# Run system update (check for internet connectivity first)
+echo "Checking for internet connectivity..."
+if ping -c 1 -W 2 archlinux.org >/dev/null 2>&1; then
+    echo "Running system update..."
+    sudo pacman -Syu --noconfirm
+else
+    echo "No internet connectivity detected, skipping system update"
+    echo "Run 'sudo pacman -Syu' manually when online"
+fi
 
 echo "Pacman configuration complete!"

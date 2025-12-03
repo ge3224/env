@@ -4,6 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+source "$SCRIPT_DIR/_common.sh"
 
 log() {
     echo "[FCITX5] $1"
@@ -20,34 +21,8 @@ packages=(
     "fcitx5-chinese-addons"     # Pinyin input method with Traditional Chinese support
 )
 
-# Function to check if a package is installed
-is_package_installed() {
-    pacman -Q "$1" >/dev/null 2>&1
-}
-
-# Function to install missing packages
-install_missing_packages() {
-    local package_list=("$@")
-    local missing_packages=()
-
-    for package in "${package_list[@]}"; do
-        if ! is_package_installed "$package"; then
-            missing_packages+=("$package")
-        else
-            log "Package $package is already installed, skipping"
-        fi
-    done
-
-    if [[ ${#missing_packages[@]} -gt 0 ]]; then
-        log "Installing missing packages: ${missing_packages[*]}"
-        sudo pacman -S --needed --noconfirm "${missing_packages[@]}"
-    else
-        log "All packages are already installed"
-    fi
-}
-
 if command -v pacman >/dev/null 2>&1; then
-    install_missing_packages "${packages[@]}"
+    install_packages_with_log "FCITX5" "${packages[@]}"
 else
     log "ERROR: No supported package manager found (pacman)"
     exit 1

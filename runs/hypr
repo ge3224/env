@@ -8,12 +8,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up Hyprland configuration..."
 
 # Install Hyprland and hyprshot
 echo "Installing Hyprland and hyprshot..."
-sudo pacman -S --needed --noconfirm hyprland hyprshot
+install_packages hyprland hyprshot
 
 # Create .config/hypr directory if it doesn't exist
 mkdir -p "$HOME/.config/hypr"

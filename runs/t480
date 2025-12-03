@@ -2,12 +2,14 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
 
 echo "Configuring T480-specific hardware optimizations..."
 
 # Install throttled package for T480
 echo "Installing throttled package..."
-sudo pacman -S --needed --noconfirm throttled
+install_packages throttled
 
 # Start and enable throttled service
 echo "Enabling throttled service..."
@@ -15,7 +17,7 @@ sudo systemctl enable --now throttled
 
 # Install msr-tools
 echo "Installing msr-tools..."
-sudo pacman -S --needed --noconfirm msr-tools
+install_packages msr-tools
 
 # Create throttlestop script
 echo "Creating throttlestop script..."
@@ -52,7 +54,7 @@ sudo systemctl enable --now throttlestop
 
 # Install fwupd for firmware updates
 echo "Installing fwupd for firmware updates..."
-sudo pacman -S --needed --noconfirm fwupd
+install_packages fwupd
 
 # Backlight control using brightnessctl (installed in core packages)
 echo "Configuring backlight control (brightnessctl)..."

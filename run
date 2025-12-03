@@ -8,6 +8,15 @@ if [ -z "${DEV_ENV:-}" ]; then
     export DEV_ENV="$script_dir"
 fi
 
+# Set up logging
+log_file="/tmp/dev_env.log"
+run_log_file="/tmp/dev_env_run.log"
+
+# Function to log to both stdout and file
+log_and_capture() {
+    tee -a "$run_log_file" | tee -a "$log_file"
+}
+
 # Parse arguments
 profile_override=""
 grep=""
@@ -31,12 +40,21 @@ while [[ $# -gt 0 ]]; do
 done
 
 log() {
+    local msg
     if [[ $dry_run == "1" ]]; then
-        echo "[DRY_RUN]: $1"
+        msg="[DRY_RUN]: $1"
     else
-        echo "$1"
+        msg="$1"
     fi
+    echo "$msg" | log_and_capture
 }
+
+# Log run start
+{
+    echo "================================================================================"
+    echo "Run started: $(date '+%Y-%m-%d %H:%M:%S')"
+    echo "================================================================================"
+} | log_and_capture
 
 # Determine which profile to use
 profile=""
@@ -85,10 +103,22 @@ while IFS= read -r line; do
     [[ -z "$line" ]] && continue
 
     # Trim whitespace
-    script_name=$(echo "$line" | xargs)
-    [[ -z "$script_name" ]] && continue
+    line=$(echo "$line" | xargs)
+    [[ -z "$line" ]] && continue
 
-    scripts_to_run+=("$script_name")
+    # Check if line is a config variable (key=value)
+    if [[ "$line" =~ ^([a-zA-Z0-9_.-]+)=(.+)$ ]]; then
+        config_key="${BASH_REMATCH[1]}"
+        config_value="${BASH_REMATCH[2]}"
+        # Export as environment variable for scripts to use
+        # Convert dots to underscores for valid env var names
+        env_var_name="PROFILE_$(echo "$config_key" | tr '.' '_' | tr '[:lower:]' '[:upper:]')"
+        export "$env_var_name=$config_value"
+        continue
+    fi
+
+    # Otherwise treat as script name
+    scripts_to_run+=("$line")
 done < "$script_dir/profiles/$profile"
 
 if [ ${#scripts_to_run[@]} -eq 0 ]; then
@@ -128,7 +158,7 @@ for script_name in "${scripts_to_run[@]}"; do
     log "==> Running: $script_name"
 
     if [[ $dry_run == "0" ]]; then
-        if ! "$script_path"; then
+        if ! "$script_path" 2>&1 | log_and_capture; then
             log "ERROR: Script $script_name failed"
             exit 1
         fi
@@ -143,3 +173,11 @@ log "Executed: $executed scripts"
 if [ $skipped -gt 0 ]; then
     log "Skipped: $skipped scripts"
 fi
+
+# Log run end
+{
+    echo "================================================================================"
+    echo "Run completed: $(date '+%Y-%m-%d %H:%M:%S')"
+    echo "Log saved to: $run_log_file"
+    echo "================================================================================"
+} | log_and_capture

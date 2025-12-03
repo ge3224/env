@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
+
 echo "Setting up reflector for fast mirror selection..."
 
 # Install reflector if not present
-if ! command -v reflector >/dev/null 2>&1; then
-    echo "Installing reflector..."
-    sudo pacman -S --needed --noconfirm reflector
-else
-    echo "reflector is already installed"
-fi
+echo "Installing reflector..."
+install_packages reflector
 
 # Backup current mirrorlist
 if [ -f /etc/pacman.d/mirrorlist ] && [ ! -f /etc/pacman.d/mirrorlist.backup ]; then
@@ -17,21 +16,29 @@ if [ -f /etc/pacman.d/mirrorlist ] && [ ! -f /etc/pacman.d/mirrorlist.backup ]; 
     sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 fi
 
-# Run reflector to update mirrorlist
-echo "Updating mirrorlist with recently synced mirrors..."
-sudo reflector \
-    --latest 10 \
-    --protocol https \
-    --sort age \
-    --save /etc/pacman.d/mirrorlist
+# Check for internet connectivity before running reflector
+echo "Checking for internet connectivity..."
+if ping -c 1 -W 2 archlinux.org >/dev/null 2>&1; then
+    # Run reflector to update mirrorlist
+    echo "Updating mirrorlist with recently synced mirrors..."
+    sudo reflector \
+        --latest 10 \
+        --protocol https \
+        --sort age \
+        --save /etc/pacman.d/mirrorlist
 
-echo "Mirrorlist updated successfully!"
-echo ""
-echo "Top 5 mirrors now in use:"
-grep "^Server" /etc/pacman.d/mirrorlist | head -5 || true
-echo ""
-echo "Using 10 most recently synced HTTPS mirrors (sorted by sync age)."
-echo "For speed-tested mirrors, run manually:"
-echo "  sudo reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
-echo ""
-echo "Backup of original mirrorlist saved to /etc/pacman.d/mirrorlist.backup"
+    echo "Mirrorlist updated successfully!"
+    echo ""
+    echo "Top 5 mirrors now in use:"
+    grep "^Server" /etc/pacman.d/mirrorlist | head -5 || true
+    echo ""
+    echo "Using 10 most recently synced HTTPS mirrors (sorted by sync age)."
+    echo "For speed-tested mirrors, run manually:"
+    echo "  sudo reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
+    echo ""
+    echo "Backup of original mirrorlist saved to /etc/pacman.d/mirrorlist.backup"
+else
+    echo "No internet connectivity detected, skipping mirror update"
+    echo "Current mirrorlist will be used"
+    echo "Run 'sudo reflector --latest 10 --protocol https --sort age --save /etc/pacman.d/mirrorlist' manually when online"
+fi

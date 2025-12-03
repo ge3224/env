@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
+
 echo "Setting up USB auto-mount utilities..."
 
 # USB utilities packages
@@ -17,7 +20,7 @@ packages=(
 echo "Installing packages: ${packages[*]}"
 
 if command -v pacman >/dev/null 2>&1; then
-    sudo pacman -S --needed --noconfirm "${packages[@]}"
+    install_packages "${packages[@]}"
 else
     echo "ERROR: No supported package manager found (pacman)"
     exit 1
