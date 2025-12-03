@@ -5,10 +5,7 @@ set -euo pipefail
 
 echo "Initializing git submodules..."
 
-# Get the repository root directory
 repo_dir="${DEV_ENV:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-
-# Check if we're in a git repository
 if [ ! -d "$repo_dir/.git" ]; then
     echo "ERROR: Not a git repository: $repo_dir"
     exit 1
@@ -16,7 +13,6 @@ fi
 
 cd "$repo_dir"
 
-# Initialize submodules
 echo "Running git submodule init..."
 if git submodule init 2>&1; then
     echo "Submodules initialized"
@@ -24,7 +20,6 @@ else
     echo "WARNING: Submodule init had issues (may already be initialized)"
 fi
 
-# Update submodules
 echo "Running git submodule update..."
 if git submodule update; then
     echo "Submodules updated"

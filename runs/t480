@@ -7,19 +7,15 @@ source "$SCRIPT_DIR/_common.sh"
 
 echo "Configuring T480-specific hardware optimizations..."
 
-# Install throttled package for T480
 echo "Installing throttled package..."
 install_packages throttled
 
-# Start and enable throttled service
 echo "Enabling throttled service..."
 sudo systemctl enable --now throttled
 
-# Install msr-tools
 echo "Installing msr-tools..."
 install_packages msr-tools
 
-# Create throttlestop script
 echo "Creating throttlestop script..."
 sudo tee /usr/local/bin/throttlestop > /dev/null <<'EOF'
 #!/bin/bash
@@ -32,7 +28,6 @@ EOF
 
 sudo chmod 0755 /usr/local/bin/throttlestop
 
-# Create throttlestop service
 echo "Creating throttlestop systemd service..."
 sudo tee /etc/systemd/system/throttlestop.service > /dev/null <<'EOF'
 [Unit]
@@ -48,24 +43,17 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 EOF
 
-# Start and enable throttlestop service
 echo "Enabling throttlestop service..."
 sudo systemctl enable --now throttlestop
 
-# Install fwupd for firmware updates
 echo "Installing fwupd for firmware updates..."
 install_packages fwupd
 
-# Backlight control using brightnessctl (installed in core packages)
 echo "Configuring backlight control (brightnessctl)..."
-# Note: brightnessctl is already installed via core packages
-# acpilight package no longer exists in official repos
 
-# Add user to video group
 echo "Adding user to video group..."
 sudo usermod -aG video "$USER"
 
-# Create udev rules for backlight control
 echo "Creating udev rules for backlight control..."
 sudo tee /etc/udev/rules.d/90-backlight.rules > /dev/null <<'EOF'
 SUBSYSTEM=="backlight", ACTION=="add", \
@@ -77,7 +65,6 @@ SUBSYSTEM=="leds", ACTION=="add", KERNEL=="*::kbd_backlight", \
   RUN+="/bin/chmod g+w /sys/class/leds/%k/brightness"
 EOF
 
-# Reload and trigger udev rules
 echo "Reloading udev rules..."
 sudo udevadm control --reload-rules
 sudo udevadm trigger

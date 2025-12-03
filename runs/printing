@@ -7,7 +7,6 @@ source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up CUPS printing system..."
 
-# Install CUPS and tools
 echo "Installing CUPS..."
 install_packages \
     cups \
@@ -16,18 +15,15 @@ install_packages \
     ghostscript \
     gsfonts
 
-# Install printer drivers
 echo "Installing printer drivers..."
 install_packages \
     gutenprint \
     hplip \
     splix
 
-# Start and enable CUPS service
 echo "Enabling CUPS service..."
 sudo systemctl enable --now cups.service
 
-# Add user to lp group
 echo "Adding $USER to lp group..."
 sudo usermod -aG lp "$USER"
 

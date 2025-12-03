@@ -5,19 +5,16 @@ set -euo pipefail
 
 echo "Configuring pacman..."
 
-# Enable colorized output and verbose package lists
 echo "Enabling pacman color and verbose output..."
 sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
 sudo sed -i 's/^#VerbosePkgLists$/VerbosePkgLists/' /etc/pacman.conf
 
-# Enable multilib repository
 echo "Enabling multilib repository..."
 sudo sed -i '/^#\[multilib\]$/,/^#Include = \/etc\/pacman.d\/mirrorlist$/ {
     s/^#\[multilib\]$/[multilib]/
     s/^#Include = \/etc\/pacman.d\/mirrorlist$/Include = \/etc\/pacman.d\/mirrorlist/
 }' /etc/pacman.conf
 
-# Run system update (check for internet connectivity first)
 echo "Checking for internet connectivity..."
 if ping -c 1 -W 2 archlinux.org >/dev/null 2>&1; then
     echo "Running system update..."

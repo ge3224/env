@@ -6,20 +6,15 @@ source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up reflector for fast mirror selection..."
 
-# Install reflector if not present
 echo "Installing reflector..."
 install_packages reflector
-
-# Backup current mirrorlist
 if [ -f /etc/pacman.d/mirrorlist ] && [ ! -f /etc/pacman.d/mirrorlist.backup ]; then
     echo "Backing up current mirrorlist..."
     sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 fi
 
-# Check for internet connectivity before running reflector
 echo "Checking for internet connectivity..."
 if ping -c 1 -W 2 archlinux.org >/dev/null 2>&1; then
-    # Run reflector to update mirrorlist
     echo "Updating mirrorlist with recently synced mirrors..."
     sudo reflector \
         --latest 10 \

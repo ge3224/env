@@ -6,7 +6,6 @@ DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo "Configuring GTK settings..."
 
-# GTK 3 configuration
 echo "Setting up GTK 3 configuration..."
 mkdir -p "$HOME/.config/gtk-3.0"
 
@@ -19,7 +18,6 @@ rm -f "$HOME/.config/gtk-3.0/settings.ini"
 ln -sf "$DOTFILES_DIR/files/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
 echo "GTK 3 settings configured"
 
-# GTK 4 configuration
 echo "Setting up GTK 4 configuration..."
 mkdir -p "$HOME/.config/gtk-4.0"
 

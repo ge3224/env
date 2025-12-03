@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# USB Auto-mount Configuration Run
-# Installs USB utilities for automatic mounting
-
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -10,11 +7,10 @@ source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up USB auto-mount utilities..."
 
-# USB utilities packages
 packages=(
-    "udisks2"               # Disk management service
-    "udiskie"               # Auto-mount daemon
-    "usbutils"              # USB detection utilities (lsusb, etc.)
+    "udisks2"
+    "udiskie"
+    "usbutils"
 )
 
 echo "Installing packages: ${packages[*]}"

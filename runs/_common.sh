@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 
-# Common helper functions for run scripts
-# Source this file in run scripts: source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
-
-# Check if a package is installed
 is_package_installed() {
-    pacman -Q "$1" >/dev/null 2>&1
+    if [ -n "${INSTALLED_PACKAGES:-}" ]; then
+        echo "$INSTALLED_PACKAGES" | grep -q "^$1$"
+    else
+        pacman -Q "$1" >/dev/null 2>&1
+    fi
 }
 
-# Check for internet connectivity
 has_internet() {
-    ping -c 1 -W 2 archlinux.org >/dev/null 2>&1
+    if [ -n "${HAS_INTERNET:-}" ]; then
+        [ "$HAS_INTERNET" = "true" ]
+    else
+        ping -c 1 -W 2 archlinux.org >/dev/null 2>&1
+    fi
 }
 
-# Install packages only if they're not already installed
-# Usage: install_packages package1 package2 package3...
 install_packages() {
     local missing_packages=()
 
@@ -25,7 +26,6 @@ install_packages() {
     done
 
     if [[ ${#missing_packages[@]} -gt 0 ]]; then
-        # Check for internet connectivity before attempting installation
         if ! has_internet; then
             echo "WARNING: Missing packages but no internet connectivity detected"
             echo "Missing packages: ${missing_packages[*]}"
@@ -40,8 +40,6 @@ install_packages() {
     fi
 }
 
-# Install packages with logging (for scripts that use log function)
-# Usage: install_packages_with_log log_prefix package1 package2 package3...
 install_packages_with_log() {
     local log_prefix="$1"
     shift
@@ -56,7 +54,6 @@ install_packages_with_log() {
     done
 
     if [[ ${#missing_packages[@]} -gt 0 ]]; then
-        # Check for internet connectivity before attempting installation
         if ! has_internet; then
             echo "[$log_prefix] WARNING: Missing packages but no internet connectivity detected"
             echo "[$log_prefix] Missing packages: ${missing_packages[*]}"

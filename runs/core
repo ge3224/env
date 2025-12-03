@@ -9,33 +9,32 @@ log() {
 
 log "Installing core system tools..."
 
-# Core system utilities
 packages=(
-    "wl-clipboard"          # Wayland clipboard utilities
-    "unzip"                 # Extract ZIP archives
-    "zip"                   # Create ZIP archives
-    "tar"                   # Archive creation/extraction
-    "tree"                  # Directory visualization
-    "fd"                    # Modern find alternative
-    "ripgrep"               # Fast text search
-    "btop"                  # Modern system monitor
-    "lsof"                  # List open files
-    "strace"                # System call tracing
-    "jq"                    # JSON processor
-    "fzf"                   # Fuzzy finder
-    "wlr-randr"             # Display configuration
-    "grim"                  # Screenshot utility
-    "slurp"                 # Screen area selection
-    "swappy"                # Screenshot annotation
-    "git"                   # Version control
-    "make"                  # Build automation
-    "pkgconf"               # Compiler flags
-    "lshw"                  # Hardware info
-    "xdg-user-dirs"         # Default user directories
-    "nwg-look"              # GTK theme manager
-    "waybar"                # Status bar for Wayland
-    "keepassxc"             # Password manager
-    "imagemagick"           # Image manipulation suite
+    "wl-clipboard"
+    "unzip"
+    "zip"
+    "tar"
+    "tree"
+    "fd"
+    "ripgrep"
+    "btop"
+    "lsof"
+    "strace"
+    "jq"
+    "fzf"
+    "wlr-randr"
+    "grim"
+    "slurp"
+    "swappy"
+    "git"
+    "make"
+    "pkgconf"
+    "lshw"
+    "xdg-user-dirs"
+    "nwg-look"
+    "waybar"
+    "keepassxc"
+    "imagemagick"
 )
 
 log "Installing packages: ${packages[*]}"

@@ -7,40 +7,29 @@ source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up comprehensive font configuration..."
 
-# Essential font packages for good Unicode coverage and compatibility
 FONT_PACKAGES=(
-    # Core TrueType fonts
-    "ttf-dejavu"          # DejaVu fonts - excellent Unicode coverage
-    "ttf-liberation"      # Liberation fonts - metric-compatible with Arial, Times New Roman, Courier New
-    "noto-fonts"          # Google Noto fonts - comprehensive Unicode coverage
-    "noto-fonts-emoji"    # Emoji support
-    "noto-fonts-cjk"      # Chinese, Japanese, Korean support
-
-    # Programming fonts
-    "ttf-firacode-nerd"   # FiraCode with Nerd Font patches for coding
-    "ttf-jetbrains-mono-nerd" # JetBrains Mono with Nerd Font patches
-    "ttf-sourcecodepro-nerd" # Source Code Pro with Nerd Font patches
-
-    # UI fonts
-    "inter-font"          # Inter - modern UI font used by Electron apps
-    "ttf-opensans"        # Open Sans
-    "ttf-roboto"          # Roboto family
-    "ttf-ubuntu-font-family" # Ubuntu fonts
-
-    # Console fonts
-    "terminus-font"       # Good bitmap font for console
-    "ttf-inconsolata"     # Good monospace font
+    "ttf-dejavu"
+    "ttf-liberation"
+    "noto-fonts"
+    "noto-fonts-emoji"
+    "noto-fonts-cjk"
+    "ttf-firacode-nerd"
+    "ttf-jetbrains-mono-nerd"
+    "ttf-sourcecodepro-nerd"
+    "inter-font"
+    "ttf-opensans"
+    "ttf-roboto"
+    "ttf-ubuntu-font-family"
+    "terminus-font"
+    "ttf-inconsolata"
 )
 
-# Install fonts
 echo "Installing font packages..."
 install_packages "${FONT_PACKAGES[@]}"
 
-# Update font cache
 echo "Updating font cache..."
-fc-cache -fv
+fc-cache -f
 
-# Set console font
 echo "Setting console font..."
 if [[ -f /usr/share/kbd/consolefonts/ter-116n.psf.gz ]]; then
     sudo setfont ter-116n
@@ -49,7 +38,6 @@ else
     echo "Warning: Terminus font not found, using default console font"
 fi
 
-# Link fontconfig files
 echo "Setting up fontconfig..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"

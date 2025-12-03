@@ -8,19 +8,14 @@ DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo "Setting up cheat CLI cheatsheets..."
 
-# Create cheatsheets directory structure
 echo "Creating cheat directories..."
 mkdir -p "$HOME/.config/cheat/cheatsheets"
-
-# Clone community cheatsheets if not present
 if [ ! -d "$HOME/.config/cheat/cheatsheets/community" ]; then
     echo "Cloning community cheatsheets..."
     git clone https://github.com/cheat/cheatsheets.git "$HOME/.config/cheat/cheatsheets/community"
 else
     echo "Community cheatsheets already cloned"
 fi
-
-# Remove existing cheat config symlinks/files
 if [ -e "$HOME/.config/cheat/conf.yml" ] || [ -L "$HOME/.config/cheat/conf.yml" ]; then
     echo "Removing existing cheat config..."
     rm -f "$HOME/.config/cheat/conf.yml"
@@ -31,7 +26,6 @@ if [ -e "$HOME/.config/cheat/cheatsheets/personal" ] || [ -L "$HOME/.config/chea
     rm -rf "$HOME/.config/cheat/cheatsheets/personal"
 fi
 
-# Create symlinks to cheat config and personal cheatsheets
 echo "Creating symlink to cheat config..."
 ln -sf "$DOTFILES_DIR/files/cheatsheets/conf.yml" "$HOME/.config/cheat/conf.yml"
 

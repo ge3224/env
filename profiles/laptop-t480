@@ -11,8 +11,8 @@ waybar.style=files/waybar/style-laptop.css
 
 # === Core System ===
 ssh-agent
-aur
 reflector
+aur
 pacman
 core
 fonts

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Waybar Configuration Run - Shared
-# Sets up waybar configuration with symlinks
-
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,10 +11,7 @@ echo "Setting up waybar configuration..."
 echo "Installing waybar..."
 install_packages waybar
 
-# Create waybar config directory
 mkdir -p "$HOME/.config/waybar"
-
-# Handle existing waybar config
 if [ -e "$HOME/.config/waybar/config.jsonc" ]; then
     if [ -L "$HOME/.config/waybar/config.jsonc" ]; then
         echo "Existing waybar config is already a symlink, removing it"
@@ -38,15 +32,11 @@ if [ -e "$HOME/.config/waybar/style.css" ]; then
     fi
 fi
 
-# Create symlinks from dotfiles
 echo "Creating symlinks to waybar config files"
 ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
 ln -sf "$DOTFILES_DIR/files/waybar/style.css" "$HOME/.config/waybar/style.css"
 ln -sf "$DOTFILES_DIR/files/waybar/fcitx5-indicator.sh" "$HOME/.config/waybar/fcitx5-indicator.sh"
 chmod +x "$HOME/.config/waybar/fcitx5-indicator.sh"
-
-# Create machine-specific style overrides
-# Check if profile specified a custom style file via PROFILE_WAYBAR_STYLE env var
 if [ -n "${PROFILE_WAYBAR_STYLE:-}" ]; then
     STYLE_SOURCE="$DOTFILES_DIR/$PROFILE_WAYBAR_STYLE"
     if [ -f "$STYLE_SOURCE" ]; then

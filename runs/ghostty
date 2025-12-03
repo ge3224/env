@@ -9,7 +9,6 @@ log() {
 
 log "Setting up ghostty terminal emulator..."
 
-# Install ghostty
 log "Installing ghostty..."
 if command -v pacman >/dev/null 2>&1; then
     install_packages_with_log "GHOSTTY" ghostty
@@ -18,15 +17,12 @@ else
     exit 1
 fi
 
-# Create config directory if it doesn't exist
 CONFIG_DIR="$HOME/.config/ghostty"
 mkdir -p "$CONFIG_DIR"
 
-# Get the dotfiles directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Create symlink to configuration
 SOURCE_CONFIG="$DOTFILES_DIR/files/ghostty/config"
 TARGET_CONFIG="$CONFIG_DIR/config"
 

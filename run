@@ -8,16 +8,13 @@ if [ -z "${DEV_ENV:-}" ]; then
     export DEV_ENV="$script_dir"
 fi
 
-# Set up logging
 log_file="/tmp/dev_env.log"
 run_log_file="/tmp/dev_env_run.log"
 
-# Function to log to both stdout and file
 log_and_capture() {
     tee -a "$run_log_file" | tee -a "$log_file"
 }
 
-# Parse arguments
 profile_override=""
 grep=""
 dry_run="0"
@@ -49,14 +46,12 @@ log() {
     echo "$msg" | log_and_capture
 }
 
-# Log run start
 {
     echo "================================================================================"
     echo "Run started: $(date '+%Y-%m-%d %H:%M:%S')"
     echo "================================================================================"
 } | log_and_capture
 
-# Determine which profile to use
 profile=""
 if [ -n "$profile_override" ]; then
     profile="$profile_override"
@@ -85,7 +80,6 @@ else
     exit 1
 fi
 
-# Verify profile exists
 if [ ! -f "$script_dir/profiles/$profile" ]; then
     log "ERROR: Profile '$profile' not found at $script_dir/profiles/$profile"
     exit 1
@@ -95,29 +89,40 @@ log "Environment: $DEV_ENV"
 log "Filter: ${grep:-none}"
 log ""
 
-# Read scripts from profile file
+if ping -c 1 -W 2 archlinux.org >/dev/null 2>&1; then
+    export HAS_INTERNET="true"
+    log "Internet connectivity: available"
+else
+    export HAS_INTERNET="false"
+    log "Internet connectivity: offline (package installations will be skipped)"
+fi
+
+log "Caching installed packages list..."
+export INSTALLED_PACKAGES=$(pacman -Qq 2>/dev/null || echo "")
+if [ -n "$INSTALLED_PACKAGES" ]; then
+    package_count=$(echo "$INSTALLED_PACKAGES" | wc -l)
+    log "Cached $package_count installed packages"
+else
+    log "WARNING: Could not retrieve package list (will fall back to individual checks)"
+fi
+log ""
+
 scripts_to_run=()
 while IFS= read -r line; do
-    # Skip comments and empty lines
     [[ "$line" =~ ^[[:space:]]*# ]] && continue
     [[ -z "$line" ]] && continue
 
-    # Trim whitespace
     line=$(echo "$line" | xargs)
     [[ -z "$line" ]] && continue
 
-    # Check if line is a config variable (key=value)
     if [[ "$line" =~ ^([a-zA-Z0-9_.-]+)=(.+)$ ]]; then
         config_key="${BASH_REMATCH[1]}"
         config_value="${BASH_REMATCH[2]}"
-        # Export as environment variable for scripts to use
-        # Convert dots to underscores for valid env var names
         env_var_name="PROFILE_$(echo "$config_key" | tr '.' '_' | tr '[:lower:]' '[:upper:]')"
         export "$env_var_name=$config_value"
         continue
     fi
 
-    # Otherwise treat as script name
     scripts_to_run+=("$line")
 done < "$script_dir/profiles/$profile"
 
@@ -129,13 +134,11 @@ fi
 log "Scripts from profile '$profile': ${#scripts_to_run[@]} total"
 log ""
 
-# Execute scripts in profile order
 executed=0
 skipped=0
 for script_name in "${scripts_to_run[@]}"; do
     script_path="$script_dir/runs/$script_name"
 
-    # Check if script exists and is executable
     if [ ! -f "$script_path" ]; then
         log "WARNING: Script not found: $script_name (skipping)"
         skipped=$((skipped + 1))
@@ -148,7 +151,6 @@ for script_name in "${scripts_to_run[@]}"; do
         continue
     fi
 
-    # Apply grep filter if specified
     if [ -n "$grep" ] && ! echo "$script_name" | grep -q "$grep"; then
         log "Filtered out: $script_name"
         skipped=$((skipped + 1))
@@ -174,7 +176,6 @@ if [ $skipped -gt 0 ]; then
     log "Skipped: $skipped scripts"
 fi
 
-# Log run end
 {
     echo "================================================================================"
     echo "Run completed: $(date '+%Y-%m-%d %H:%M:%S')"

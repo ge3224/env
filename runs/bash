@@ -1,28 +1,20 @@
 #!/usr/bin/env bash
 
-# Bash Configuration Run
-# Symlinks custom .bashrc file
-
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo "Setting up bash configuration..."
-
-# Backup existing .bashrc if it exists and isn't a symlink
 if [ -f "$HOME/.bashrc" ] && [ ! -L "$HOME/.bashrc" ]; then
     echo "Backing up existing .bashrc to .bashrc.backup"
     cp "$HOME/.bashrc" "$HOME/.bashrc.backup"
 fi
-
-# Backup existing .bash_profile if it exists and isn't a symlink
 if [ -f "$HOME/.bash_profile" ] && [ ! -L "$HOME/.bash_profile" ]; then
     echo "Backing up existing .bash_profile to .bash_profile.backup"
     cp "$HOME/.bash_profile" "$HOME/.bash_profile.backup"
 fi
 
-# Create symlinks
 ln -sf "$DOTFILES_DIR/files/.bashrc" "$HOME/.bashrc"
 ln -sf "$DOTFILES_DIR/files/.bash_profile" "$HOME/.bash_profile"
 

@@ -5,10 +5,8 @@ set -euo pipefail
 
 echo "Configuring keyboard (CapsLock -> Esc)..."
 
-# Ensure directory exists
 sudo mkdir -p /etc/X11/xorg.conf.d
 
-# Create keyboard configuration
 echo "Creating keyboard configuration file..."
 sudo tee /etc/X11/xorg.conf.d/00-keyboard.conf > /dev/null <<'EOF'
 Section "InputClass"

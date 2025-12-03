@@ -9,23 +9,16 @@ log() {
 
 log "Configuring GDM display manager..."
 
-# Check if GDM is installed
 log "Installing GDM..."
 install_packages_with_log "GDM" gdm
-
-# Disable SDDM if it's enabled (migration from SDDM)
 if systemctl is-enabled sddm &>/dev/null; then
     log "Disabling SDDM..."
     sudo systemctl disable sddm
 fi
-
-# Disable LightDM if it's enabled (just in case)
 if systemctl is-enabled lightdm &>/dev/null; then
     log "Disabling LightDM..."
     sudo systemctl disable lightdm
 fi
-
-# Enable GDM
 if ! systemctl is-enabled gdm &>/dev/null; then
     log "Enabling GDM..."
     sudo systemctl enable gdm
@@ -33,7 +26,6 @@ else
     log "GDM is already enabled"
 fi
 
-# Hide GNOME sessions since we don't have a full GNOME desktop installed
 log "Hiding GNOME sessions from GDM session selector..."
 
 GNOME_SESSIONS=(

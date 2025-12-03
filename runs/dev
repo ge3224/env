@@ -7,7 +7,6 @@ source "$SCRIPT_DIR/_common.sh"
 
 echo "Setting up development tools..."
 
-# Install language tools from pacman
 echo "Installing language tools and package managers..."
 install_packages \
     dart \
@@ -20,7 +19,6 @@ install_packages \
     python-pipx \
     python-poetry
 
-# Install Deno if not present
 echo "Checking for Deno..."
 if ! command -v deno >/dev/null 2>&1; then
     echo "Installing Deno..."
@@ -29,18 +27,15 @@ else
     echo "Deno already installed"
 fi
 
-# Install Rust if not present
 echo "Checking for Rust..."
 if ! command -v rustc >/dev/null 2>&1; then
     echo "Installing Rust..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    # Source cargo env for current session
     source "$HOME/.cargo/env"
 else
     echo "Rust already installed"
 fi
 
-# Initialize opam if necessary
 echo "Checking opam initialization..."
 if [ ! -d "$HOME/.opam" ]; then
     echo "Initializing opam..."
@@ -51,7 +46,6 @@ else
     eval $(opam env) 2>/dev/null || true
 fi
 
-# Install OCaml tools via opam
 echo "Installing OCaml tools..."
 for pkg in odoc ocamlformat utop; do
     if ! opam list --installed "$pkg" >/dev/null 2>&1; then
@@ -62,19 +56,15 @@ for pkg in odoc ocamlformat utop; do
     fi
 done
 
-# Install Docker
 echo "Installing Docker..."
 install_packages docker docker-compose
 
-# Enable and start Docker service
 echo "Enabling Docker service..."
 sudo systemctl enable --now docker
 
-# Ensure docker group exists
 echo "Setting up Docker group..."
 sudo groupadd -f docker
 
-# Add user to docker group
 echo "Adding $USER to docker group..."
 sudo usermod -aG docker "$USER"
 
