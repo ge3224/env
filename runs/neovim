@@ -32,16 +32,22 @@ else
 fi
 if [ -e "$HOME/.config/nvim" ]; then
     if [ -L "$HOME/.config/nvim" ]; then
-        echo "Existing nvim config is already a symlink, removing it"
-        rm "$HOME/.config/nvim"
+        CURRENT_TARGET=$(readlink "$HOME/.config/nvim")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/nvim" ]; then
+            echo "nvim config symlink already points to correct target, skipping"
+        else
+            echo "Existing nvim config symlink points to different location, updating"
+            rm "$HOME/.config/nvim"
+            ln -sf "$DOTFILES_DIR/files/nvim" "$HOME/.config/nvim"
+        fi
     else
         echo "Backing up existing nvim config to .config/nvim.backup"
         mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup"
+        ln -sf "$DOTFILES_DIR/files/nvim" "$HOME/.config/nvim"
     fi
+else
+    ln -sf "$DOTFILES_DIR/files/nvim" "$HOME/.config/nvim"
 fi
-
-echo "Creating symlink to nvim config"
-ln -sf "$DOTFILES_DIR/files/nvim" "$HOME/.config/nvim"
 
 echo "Neovim setup completed!"
 echo "Run 'nvim' to start neovim with your custom configuration."

@@ -11,21 +11,62 @@ echo "Setting up tmux configuration..."
 echo "Installing tmux..."
 install_packages tmux
 echo "tmux installed successfully!"
-if [ -f "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
-    echo "Backing up existing .tmux.conf to .tmux.conf.backup"
-    cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.backup"
+if [ -e "$HOME/.tmux.conf" ]; then
+    if [ -L "$HOME/.tmux.conf" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.tmux.conf")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/tmux/tmux.conf" ]; then
+            echo ".tmux.conf symlink already points to correct target, skipping"
+        else
+            echo "Existing .tmux.conf symlink points to different location, updating"
+            rm "$HOME/.tmux.conf"
+            ln -sf "$DOTFILES_DIR/files/tmux/tmux.conf" "$HOME/.tmux.conf"
+        fi
+    else
+        echo "Backing up existing .tmux.conf to .tmux.conf.backup"
+        cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.backup"
+        ln -sf "$DOTFILES_DIR/files/tmux/tmux.conf" "$HOME/.tmux.conf"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/tmux/tmux.conf" "$HOME/.tmux.conf"
 fi
-
-echo "Creating symlink to tmux.conf"
-ln -sf "$DOTFILES_DIR/files/tmux/tmux.conf" "$HOME/.tmux.conf"
 
 echo "Installing tmux-sessionizer..."
 mkdir -p "$HOME/.local/bin"
-ln -sf "$DOTFILES_DIR/files/bin/tmux-sessionizer" "$HOME/.local/bin/tmux-sessionizer"
+if [ -e "$HOME/.local/bin/tmux-sessionizer" ]; then
+    if [ -L "$HOME/.local/bin/tmux-sessionizer" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.local/bin/tmux-sessionizer")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/bin/tmux-sessionizer" ]; then
+            echo "tmux-sessionizer symlink already points to correct target, skipping"
+        else
+            echo "Existing tmux-sessionizer symlink points to different location, updating"
+            rm "$HOME/.local/bin/tmux-sessionizer"
+            ln -sf "$DOTFILES_DIR/files/bin/tmux-sessionizer" "$HOME/.local/bin/tmux-sessionizer"
+        fi
+    else
+        ln -sf "$DOTFILES_DIR/files/bin/tmux-sessionizer" "$HOME/.local/bin/tmux-sessionizer"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/bin/tmux-sessionizer" "$HOME/.local/bin/tmux-sessionizer"
+fi
 
 echo "Installing tmux-sessionizer config..."
 mkdir -p "$HOME/.config/tmux-sessionizer"
-ln -sf "$DOTFILES_DIR/files/tmux-sessionizer/tmux-sessionizer.conf" "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf"
+if [ -e "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf" ]; then
+    if [ -L "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/tmux-sessionizer/tmux-sessionizer.conf" ]; then
+            echo "tmux-sessionizer config symlink already points to correct target, skipping"
+        else
+            echo "Existing tmux-sessionizer config symlink points to different location, updating"
+            rm "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf"
+            ln -sf "$DOTFILES_DIR/files/tmux-sessionizer/tmux-sessionizer.conf" "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf"
+        fi
+    else
+        ln -sf "$DOTFILES_DIR/files/tmux-sessionizer/tmux-sessionizer.conf" "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/tmux-sessionizer/tmux-sessionizer.conf" "$HOME/.config/tmux-sessionizer/tmux-sessionizer.conf"
+fi
 
 echo "Tmux configuration installed successfully!"
 echo "Start a new tmux session with 'tmux' to use the new configuration."

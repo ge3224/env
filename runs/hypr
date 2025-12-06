@@ -12,13 +12,24 @@ echo "Installing Hyprland and hyprshot..."
 install_packages hyprland hyprshot
 
 mkdir -p "$HOME/.config/hypr"
-if [ -f "$HOME/.config/hypr/hyprland.conf" ] && [ ! -L "$HOME/.config/hypr/hyprland.conf" ]; then
-    echo "Backing up existing hyprland.conf to hyprland.conf.backup"
-    cp "$HOME/.config/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf.backup"
+if [ -e "$HOME/.config/hypr/hyprland.conf" ]; then
+    if [ -L "$HOME/.config/hypr/hyprland.conf" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.config/hypr/hyprland.conf")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/hypr/hyprland.conf" ]; then
+            echo "hyprland.conf symlink already points to correct target, skipping"
+        else
+            echo "Existing hyprland.conf symlink points to different location, updating"
+            rm "$HOME/.config/hypr/hyprland.conf"
+            ln -sf "$DOTFILES_DIR/files/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
+        fi
+    else
+        echo "Backing up existing hyprland.conf to hyprland.conf.backup"
+        cp "$HOME/.config/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf.backup"
+        ln -sf "$DOTFILES_DIR/files/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
 fi
-
-echo "Creating symlink to hyprland.conf"
-ln -sf "$DOTFILES_DIR/files/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
 
 echo "Creating local.conf with T480 monitor configuration"
 cat > "$HOME/.config/hypr/local.conf" << 'EOF'

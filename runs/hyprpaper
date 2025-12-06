@@ -16,9 +16,23 @@ echo "hyprpaper installed successfully!"
 mkdir -p "$HOME/.config/hypr"
 mkdir -p "$HOME/Pictures/wallpapers"
 mkdir -p "$HOME/.local/bin"
-if [ -f "$HOME/.config/hypr/hyprpaper.conf" ] && [ ! -L "$HOME/.config/hypr/hyprpaper.conf" ]; then
-    echo "Backing up existing hyprpaper.conf to hyprpaper.conf.backup"
-    cp "$HOME/.config/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf.backup"
+if [ -e "$HOME/.config/hypr/hyprpaper.conf" ]; then
+    if [ -L "$HOME/.config/hypr/hyprpaper.conf" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.config/hypr/hyprpaper.conf")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/hypr/hyprpaper.conf" ]; then
+            echo "hyprpaper.conf symlink already points to correct target, skipping"
+        else
+            echo "Existing hyprpaper.conf symlink points to different location, updating"
+            rm "$HOME/.config/hypr/hyprpaper.conf"
+            ln -sf "$DOTFILES_DIR/files/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf"
+        fi
+    else
+        echo "Backing up existing hyprpaper.conf to hyprpaper.conf.backup"
+        cp "$HOME/.config/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf.backup"
+        ln -sf "$DOTFILES_DIR/files/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf"
 fi
 
 echo "Installing wallpaper randomizer script"
@@ -28,9 +42,6 @@ if [ -f "$DOTFILES_DIR/assets/hanzi.jpg" ]; then
     echo "Copying default wallpaper to ~/Pictures/wallpapers/"
     cp "$DOTFILES_DIR/assets/hanzi.jpg" "$HOME/Pictures/wallpapers/hanzi.jpg"
 fi
-
-echo "Creating symlink to hyprpaper.conf"
-ln -sf "$DOTFILES_DIR/files/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf"
 
 echo "Hyprpaper configuration installed successfully!"
 echo ""

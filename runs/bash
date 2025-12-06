@@ -6,17 +6,43 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo "Setting up bash configuration..."
-if [ -f "$HOME/.bashrc" ] && [ ! -L "$HOME/.bashrc" ]; then
-    echo "Backing up existing .bashrc to .bashrc.backup"
-    cp "$HOME/.bashrc" "$HOME/.bashrc.backup"
-fi
-if [ -f "$HOME/.bash_profile" ] && [ ! -L "$HOME/.bash_profile" ]; then
-    echo "Backing up existing .bash_profile to .bash_profile.backup"
-    cp "$HOME/.bash_profile" "$HOME/.bash_profile.backup"
+if [ -e "$HOME/.bashrc" ]; then
+    if [ -L "$HOME/.bashrc" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.bashrc")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/.bashrc" ]; then
+            echo ".bashrc symlink already points to correct target, skipping"
+        else
+            echo "Existing .bashrc symlink points to different location, updating"
+            rm "$HOME/.bashrc"
+            ln -sf "$DOTFILES_DIR/files/.bashrc" "$HOME/.bashrc"
+        fi
+    else
+        echo "Backing up existing .bashrc to .bashrc.backup"
+        cp "$HOME/.bashrc" "$HOME/.bashrc.backup"
+        ln -sf "$DOTFILES_DIR/files/.bashrc" "$HOME/.bashrc"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/.bashrc" "$HOME/.bashrc"
 fi
 
-ln -sf "$DOTFILES_DIR/files/.bashrc" "$HOME/.bashrc"
-ln -sf "$DOTFILES_DIR/files/.bash_profile" "$HOME/.bash_profile"
+if [ -e "$HOME/.bash_profile" ]; then
+    if [ -L "$HOME/.bash_profile" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.bash_profile")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/.bash_profile" ]; then
+            echo ".bash_profile symlink already points to correct target, skipping"
+        else
+            echo "Existing .bash_profile symlink points to different location, updating"
+            rm "$HOME/.bash_profile"
+            ln -sf "$DOTFILES_DIR/files/.bash_profile" "$HOME/.bash_profile"
+        fi
+    else
+        echo "Backing up existing .bash_profile to .bash_profile.backup"
+        cp "$HOME/.bash_profile" "$HOME/.bash_profile.backup"
+        ln -sf "$DOTFILES_DIR/files/.bash_profile" "$HOME/.bash_profile"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/.bash_profile" "$HOME/.bash_profile"
+fi
 
 echo "Bash configuration installed successfully!"
 echo "Restart your terminal or run 'source ~/.bashrc' to apply changes."

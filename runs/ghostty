@@ -26,13 +26,22 @@ DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 SOURCE_CONFIG="$DOTFILES_DIR/files/ghostty/config"
 TARGET_CONFIG="$CONFIG_DIR/config"
 
-if [ -L "$TARGET_CONFIG" ]; then
-    log "ghostty config symlink already exists"
-elif [ -f "$TARGET_CONFIG" ]; then
-    log "Backing up existing config to $TARGET_CONFIG.backup"
-    mv "$TARGET_CONFIG" "$TARGET_CONFIG.backup"
-    ln -sf "$SOURCE_CONFIG" "$TARGET_CONFIG"
-    log "Created ghostty config symlink (backed up existing config)"
+if [ -e "$TARGET_CONFIG" ]; then
+    if [ -L "$TARGET_CONFIG" ]; then
+        CURRENT_TARGET=$(readlink "$TARGET_CONFIG")
+        if [ "$CURRENT_TARGET" = "$SOURCE_CONFIG" ]; then
+            log "ghostty config symlink already points to correct target, skipping"
+        else
+            log "Existing ghostty config symlink points to different location, updating"
+            rm "$TARGET_CONFIG"
+            ln -sf "$SOURCE_CONFIG" "$TARGET_CONFIG"
+        fi
+    else
+        log "Backing up existing config to $TARGET_CONFIG.backup"
+        mv "$TARGET_CONFIG" "$TARGET_CONFIG.backup"
+        ln -sf "$SOURCE_CONFIG" "$TARGET_CONFIG"
+        log "Created ghostty config symlink (backed up existing config)"
+    fi
 else
     ln -sf "$SOURCE_CONFIG" "$TARGET_CONFIG"
     log "Created ghostty config symlink"

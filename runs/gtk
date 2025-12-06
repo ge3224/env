@@ -9,25 +9,47 @@ echo "Configuring GTK settings..."
 echo "Setting up GTK 3 configuration..."
 mkdir -p "$HOME/.config/gtk-3.0"
 
-if [ -f "$HOME/.config/gtk-3.0/settings.ini" ] && [ ! -L "$HOME/.config/gtk-3.0/settings.ini" ]; then
-    echo "Backing up existing GTK 3 settings.ini to settings.ini.backup"
-    mv "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini.backup"
+if [ -e "$HOME/.config/gtk-3.0/settings.ini" ]; then
+    if [ -L "$HOME/.config/gtk-3.0/settings.ini" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.config/gtk-3.0/settings.ini")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/gtk-3.0/settings.ini" ]; then
+            echo "GTK 3 settings.ini symlink already points to correct target, skipping"
+        else
+            echo "Existing GTK 3 settings.ini symlink points to different location, updating"
+            rm -f "$HOME/.config/gtk-3.0/settings.ini"
+            ln -sf "$DOTFILES_DIR/files/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
+        fi
+    else
+        echo "Backing up existing GTK 3 settings.ini to settings.ini.backup"
+        mv "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini.backup"
+        ln -sf "$DOTFILES_DIR/files/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
 fi
-
-rm -f "$HOME/.config/gtk-3.0/settings.ini"
-ln -sf "$DOTFILES_DIR/files/gtk-3.0/settings.ini" "$HOME/.config/gtk-3.0/settings.ini"
 echo "GTK 3 settings configured"
 
 echo "Setting up GTK 4 configuration..."
 mkdir -p "$HOME/.config/gtk-4.0"
 
-if [ -f "$HOME/.config/gtk-4.0/settings.ini" ] && [ ! -L "$HOME/.config/gtk-4.0/settings.ini" ]; then
-    echo "Backing up existing GTK 4 settings.ini to settings.ini.backup"
-    mv "$HOME/.config/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini.backup"
+if [ -e "$HOME/.config/gtk-4.0/settings.ini" ]; then
+    if [ -L "$HOME/.config/gtk-4.0/settings.ini" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.config/gtk-4.0/settings.ini")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/gtk-4.0/settings.ini" ]; then
+            echo "GTK 4 settings.ini symlink already points to correct target, skipping"
+        else
+            echo "Existing GTK 4 settings.ini symlink points to different location, updating"
+            rm -f "$HOME/.config/gtk-4.0/settings.ini"
+            ln -sf "$DOTFILES_DIR/files/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
+        fi
+    else
+        echo "Backing up existing GTK 4 settings.ini to settings.ini.backup"
+        mv "$HOME/.config/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini.backup"
+        ln -sf "$DOTFILES_DIR/files/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
 fi
-
-rm -f "$HOME/.config/gtk-4.0/settings.ini"
-ln -sf "$DOTFILES_DIR/files/gtk-4.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
 echo "GTK 4 settings configured"
 
 echo "GTK configuration completed!"

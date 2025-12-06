@@ -14,28 +14,58 @@ install_packages waybar
 mkdir -p "$HOME/.config/waybar"
 if [ -e "$HOME/.config/waybar/config.jsonc" ]; then
     if [ -L "$HOME/.config/waybar/config.jsonc" ]; then
-        echo "Existing waybar config is already a symlink, removing it"
-        rm "$HOME/.config/waybar/config.jsonc"
+        CURRENT_TARGET=$(readlink "$HOME/.config/waybar/config.jsonc")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/waybar/config.jsonc" ]; then
+            echo "config.jsonc symlink already points to correct target, skipping"
+        else
+            echo "Existing waybar config symlink points to different location, updating"
+            rm "$HOME/.config/waybar/config.jsonc"
+            ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
+        fi
     else
         echo "Backing up existing waybar config to .config/waybar/config.jsonc.backup"
         mv "$HOME/.config/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc.backup"
+        ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
     fi
+else
+    ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
 fi
 
 if [ -e "$HOME/.config/waybar/style.css" ]; then
     if [ -L "$HOME/.config/waybar/style.css" ]; then
-        echo "Existing waybar style is already a symlink, removing it"
-        rm "$HOME/.config/waybar/style.css"
+        CURRENT_TARGET=$(readlink "$HOME/.config/waybar/style.css")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/waybar/style.css" ]; then
+            echo "style.css symlink already points to correct target, skipping"
+        else
+            echo "Existing waybar style symlink points to different location, updating"
+            rm "$HOME/.config/waybar/style.css"
+            ln -sf "$DOTFILES_DIR/files/waybar/style.css" "$HOME/.config/waybar/style.css"
+        fi
     else
         echo "Backing up existing waybar style to .config/waybar/style.css.backup"
         mv "$HOME/.config/waybar/style.css" "$HOME/.config/waybar/style.css.backup"
+        ln -sf "$DOTFILES_DIR/files/waybar/style.css" "$HOME/.config/waybar/style.css"
     fi
+else
+    ln -sf "$DOTFILES_DIR/files/waybar/style.css" "$HOME/.config/waybar/style.css"
 fi
 
-echo "Creating symlinks to waybar config files"
-ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
-ln -sf "$DOTFILES_DIR/files/waybar/style.css" "$HOME/.config/waybar/style.css"
-ln -sf "$DOTFILES_DIR/files/waybar/fcitx5-indicator.sh" "$HOME/.config/waybar/fcitx5-indicator.sh"
+if [ -e "$HOME/.config/waybar/fcitx5-indicator.sh" ]; then
+    if [ -L "$HOME/.config/waybar/fcitx5-indicator.sh" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.config/waybar/fcitx5-indicator.sh")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/waybar/fcitx5-indicator.sh" ]; then
+            echo "fcitx5-indicator.sh symlink already points to correct target, skipping"
+        else
+            echo "Existing fcitx5-indicator.sh symlink points to different location, updating"
+            rm "$HOME/.config/waybar/fcitx5-indicator.sh"
+            ln -sf "$DOTFILES_DIR/files/waybar/fcitx5-indicator.sh" "$HOME/.config/waybar/fcitx5-indicator.sh"
+        fi
+    else
+        ln -sf "$DOTFILES_DIR/files/waybar/fcitx5-indicator.sh" "$HOME/.config/waybar/fcitx5-indicator.sh"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/waybar/fcitx5-indicator.sh" "$HOME/.config/waybar/fcitx5-indicator.sh"
+fi
 chmod +x "$HOME/.config/waybar/fcitx5-indicator.sh"
 if [ -n "${PROFILE_WAYBAR_STYLE:-}" ]; then
     STYLE_SOURCE="$DOTFILES_DIR/$PROFILE_WAYBAR_STYLE"

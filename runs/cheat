@@ -16,20 +16,42 @@ if [ ! -d "$HOME/.config/cheat/cheatsheets/community" ]; then
 else
     echo "Community cheatsheets already cloned"
 fi
-if [ -e "$HOME/.config/cheat/conf.yml" ] || [ -L "$HOME/.config/cheat/conf.yml" ]; then
-    echo "Removing existing cheat config..."
-    rm -f "$HOME/.config/cheat/conf.yml"
+if [ -e "$HOME/.config/cheat/conf.yml" ]; then
+    if [ -L "$HOME/.config/cheat/conf.yml" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.config/cheat/conf.yml")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/cheatsheets/conf.yml" ]; then
+            echo "cheat config symlink already points to correct target, skipping"
+        else
+            echo "Existing cheat config symlink points to different location, updating"
+            rm -f "$HOME/.config/cheat/conf.yml"
+            ln -sf "$DOTFILES_DIR/files/cheatsheets/conf.yml" "$HOME/.config/cheat/conf.yml"
+        fi
+    else
+        echo "Removing existing cheat config file..."
+        rm -f "$HOME/.config/cheat/conf.yml"
+        ln -sf "$DOTFILES_DIR/files/cheatsheets/conf.yml" "$HOME/.config/cheat/conf.yml"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/cheatsheets/conf.yml" "$HOME/.config/cheat/conf.yml"
 fi
 
-if [ -e "$HOME/.config/cheat/cheatsheets/personal" ] || [ -L "$HOME/.config/cheat/cheatsheets/personal" ]; then
-    echo "Removing existing personal cheatsheets link..."
-    rm -rf "$HOME/.config/cheat/cheatsheets/personal"
+if [ -e "$HOME/.config/cheat/cheatsheets/personal" ]; then
+    if [ -L "$HOME/.config/cheat/cheatsheets/personal" ]; then
+        CURRENT_TARGET=$(readlink "$HOME/.config/cheat/cheatsheets/personal")
+        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/cheatsheets/personal" ]; then
+            echo "personal cheatsheets symlink already points to correct target, skipping"
+        else
+            echo "Existing personal cheatsheets symlink points to different location, updating"
+            rm -rf "$HOME/.config/cheat/cheatsheets/personal"
+            ln -sf "$DOTFILES_DIR/files/cheatsheets/personal" "$HOME/.config/cheat/cheatsheets/personal"
+        fi
+    else
+        echo "Removing existing personal cheatsheets directory..."
+        rm -rf "$HOME/.config/cheat/cheatsheets/personal"
+        ln -sf "$DOTFILES_DIR/files/cheatsheets/personal" "$HOME/.config/cheat/cheatsheets/personal"
+    fi
+else
+    ln -sf "$DOTFILES_DIR/files/cheatsheets/personal" "$HOME/.config/cheat/cheatsheets/personal"
 fi
-
-echo "Creating symlink to cheat config..."
-ln -sf "$DOTFILES_DIR/files/cheatsheets/conf.yml" "$HOME/.config/cheat/conf.yml"
-
-echo "Creating symlink to personal cheatsheets..."
-ln -sf "$DOTFILES_DIR/files/cheatsheets/personal" "$HOME/.config/cheat/cheatsheets/personal"
 
 echo "Cheat cheatsheets configured!"

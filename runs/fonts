@@ -43,7 +43,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 mkdir -p "$HOME/.config/fontconfig"
 if [[ -f "$DOTFILES_DIR/files/fontconfig/fonts.conf" ]]; then
-    ln -sf "$DOTFILES_DIR/files/fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf"
+    if [ -e "$HOME/.config/fontconfig/fonts.conf" ]; then
+        if [ -L "$HOME/.config/fontconfig/fonts.conf" ]; then
+            CURRENT_TARGET=$(readlink "$HOME/.config/fontconfig/fonts.conf")
+            if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/fontconfig/fonts.conf" ]; then
+                echo "fonts.conf symlink already points to correct target, skipping"
+            else
+                echo "Existing fonts.conf symlink points to different location, updating"
+                rm "$HOME/.config/fontconfig/fonts.conf"
+                ln -sf "$DOTFILES_DIR/files/fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf"
+            fi
+        else
+            echo "Backing up existing fontconfig to fonts.conf.backup"
+            cp "$HOME/.config/fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf.backup"
+            ln -sf "$DOTFILES_DIR/files/fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf"
+        fi
+    else
+        ln -sf "$DOTFILES_DIR/files/fontconfig/fonts.conf" "$HOME/.config/fontconfig/fonts.conf"
+    fi
     echo "Linked fontconfig configuration"
 else
     echo "Warning: fontconfig file not found"
