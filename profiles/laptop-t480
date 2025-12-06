@@ -9,11 +9,11 @@
 # === Configuration ===
 waybar.style=files/waybar/style-laptop.css
 monitor.primary=eDP-1,1920x1080@60,0x0,1.25
+aur.packages=cheat-bin,claude-code,clickup,figma-linux-bin,google-chrome,postman-bin,proton-mail-bin,rustdesk-bin,slack-desktop,tailwindcss-cli,xnviewmp,zen-browser-bin,zoom
 
 # === Core System ===
 ssh-agent
 reflector
-aur
 pacman
 core
 fonts
@@ -37,6 +37,7 @@ tmux
 
 # === Development Tools ===
 dev
+aur  # Must run after 'dev' and 'core' (requires Rust and make to build paru)
 neovim
 
 # === Applications ===
@@ -46,3 +47,7 @@ usb
 cheat
 pandoc
 printing
+
+# === System Updates ===
+# Run updates last after all packages are installed
+update

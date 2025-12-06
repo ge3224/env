@@ -1,48 +1,6 @@
 [submodule "files/nvim"]
 	path = files/nvim
 	url = git@github.com:ge3224/nvimconf.git
-[submodule "aur/zen-browser-bin"]
-	path = aur/zen-browser-bin
-	url = https://aur.archlinux.org/zen-browser-bin.git
-[submodule "aur/zoom"]
-	path = aur/zoom
-	url = https://aur.archlinux.org/zoom.git
-[submodule "aur/postman-bin"]
-	path = aur/postman-bin
-	url = https://aur.archlinux.org/postman-bin.git
-[submodule "aur/slack-desktop"]
-	path = aur/slack-desktop
-	url = https://aur.archlinux.org/slack-desktop.git
-[submodule "aur/clickup-desktop"]
-	path = aur/clickup-desktop
-	url = https://aur.archlinux.org/clickup-desktop.git
-[submodule "aur/cheat-bin"]
-	path = aur/cheat-bin
-	url = https://aur.archlinux.org/cheat-bin.git
 [submodule "files/cheatsheets"]
 	path = files/cheatsheets
 	url = git@github.com:ge3224/cheatsheets.git
-[submodule "aur/google-chrome"]
-	path = aur/google-chrome
-	url = https://aur.archlinux.org/google-chrome.git
-[submodule "aur/tailwindcss-cli"]
-	path = aur/tailwindcss-cli
-	url = https://aur.archlinux.org/tailwindcss-cli.git
-[submodule "aur/figma-linux-bin"]
-	path = aur/figma-linux-bin
-	url = https://aur.archlinux.org/figma-linux-bin.git
-[submodule "aur/xnviewmp"]
-	path = aur/xnviewmp
-	url = https://aur.archlinux.org/xnviewmp.git
-[submodule "aur/gemini-cli"]
-	path = aur/gemini-cli
-	url = https://aur.archlinux.org/gemini.git
-[submodule "aur/rustdesk"]
-	path = aur/rustdesk
-	url = https://aur.archlinux.org/rustdesk-bin.git
-[submodule "aur/claude-code"]
-	path = aur/claude-code
-	url = https://aur.archlinux.org/claude-code.git
-[submodule "aur/proton-mail"]
-	path = aur/proton-mail
-	url = https://aur.archlinux.org/proton-mail-bin.git

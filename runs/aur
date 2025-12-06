@@ -4,17 +4,83 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+source "$SCRIPT_DIR/_common.sh"
 
-echo "Setting up AUR package submodules..."
+echo "Setting up AUR helper (paru)..."
 
-cd "$DOTFILES_DIR"
-if ! git rev-parse --git-dir >/dev/null 2>&1; then
-    echo "Error: Not in a git repository"
-    exit 1
+# Install paru if not already installed
+if ! command -v paru &> /dev/null; then
+    echo "Installing paru..."
+
+    # Check if we have internet
+    if [[ "${HAS_INTERNET:-false}" != "true" ]]; then
+        echo "No internet connection. Skipping paru installation."
+        exit 0
+    fi
+
+    # Check for required build dependencies
+    if ! command -v cargo &> /dev/null || ! command -v make &> /dev/null; then
+        echo "ERROR: paru requires cargo (Rust) and make to build"
+        echo "Please ensure 'dev' and 'core' scripts run before 'aur' in your profile"
+        exit 1
+    fi
+
+    # Create temp directory for paru installation
+    PARU_TMP=$(mktemp -d)
+    trap "rm -rf '$PARU_TMP'" EXIT
+
+    cd "$PARU_TMP"
+    git clone https://aur.archlinux.org/paru.git
+    cd paru
+    makepkg -si --noconfirm
+
+    echo "paru installed successfully!"
+else
+    echo "paru is already installed"
 fi
 
-echo "Initializing and updating AUR package submodules..."
-git submodule update --init --recursive aur/
+# Setup paru configuration
+echo "Configuring paru..."
+mkdir -p "$HOME/.config/paru"
 
-echo "AUR package submodules setup completed!"
-echo "All AUR package submodules have been initialized and updated."
+# Check if symlink already points to the correct target
+TARGET="$DOTFILES_DIR/files/paru/paru.conf"
+LINK="$HOME/.config/paru/paru.conf"
+if [[ -L "$LINK" ]] && [[ "$(readlink "$LINK")" == "$TARGET" ]]; then
+    echo "paru config symlink already points to correct target, skipping"
+else
+    ln -sf "$TARGET" "$LINK"
+    echo "paru config symlinked"
+fi
+
+# Install AUR packages from profile
+if [[ -n "${PROFILE_AUR_PACKAGES:-}" ]]; then
+    echo "Installing AUR packages from profile..."
+
+    # Split comma-separated package list
+    IFS=',' read -ra PACKAGES <<< "$PROFILE_AUR_PACKAGES"
+
+    # Filter out already installed packages
+    TO_INSTALL=()
+    for pkg in "${PACKAGES[@]}"; do
+        # Trim whitespace
+        pkg="${pkg// /}"
+        if ! is_package_installed "$pkg"; then
+            TO_INSTALL+=("$pkg")
+        else
+            echo "  $pkg - already installed"
+        fi
+    done
+
+    # Install missing packages
+    if [[ ${#TO_INSTALL[@]} -gt 0 ]]; then
+        echo "Installing: ${TO_INSTALL[*]}"
+        paru -S --needed --noconfirm "${TO_INSTALL[@]}"
+    else
+        echo "All AUR packages already installed"
+    fi
+else
+    echo "No AUR packages specified in profile (aur.packages=...)"
+fi
+
+echo "AUR setup completed!"

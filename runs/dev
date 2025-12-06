@@ -10,6 +10,7 @@ echo "Setting up development tools..."
 echo "Installing language tools and package managers..."
 install_packages \
     dart \
+    gemini-cli \
     go \
     nodejs \
     npm \

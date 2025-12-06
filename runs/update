@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
+
+echo "Running system updates..."
+
+# Check for internet connectivity
+if [[ "${HAS_INTERNET:-false}" != "true" ]]; then
+    echo "No internet connection. Skipping updates."
+    echo "Run 'sudo pacman -Syu && paru -Sua' manually when online"
+    exit 0
+fi
+
+echo "Updating official packages..."
+sudo pacman -Syu --noconfirm
+
+echo "Updating AUR packages..."
+if command -v paru &> /dev/null; then
+    # Note: --noconfirm skips PKGBUILD review
+    # Remove --noconfirm to review PKGBUILDs before updating
+    paru -Sua --noconfirm
+else
+    echo "paru not installed, skipping AUR updates"
+fi
+
+echo "System update complete!"
