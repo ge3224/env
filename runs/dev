@@ -56,17 +56,11 @@ for pkg in odoc ocamlformat utop; do
     fi
 done
 
-echo "Installing Docker..."
-install_packages docker docker-compose
+echo "Installing Podman..."
+install_packages podman podman-compose podman-docker
 
-echo "Enabling Docker service..."
-sudo systemctl enable --now docker
-
-echo "Setting up Docker group..."
-sudo groupadd -f docker
-
-echo "Adding $USER to docker group..."
-sudo usermod -aG docker "$USER"
+echo "Enabling Podman socket..."
+systemctl --user enable --now podman.socket
 
 echo "Development tools installed!"
-echo "Note: You may need to log out and back in for group changes to take effect"
+echo "Note: Podman runs rootless by default. The podman-docker package provides Docker CLI compatibility."

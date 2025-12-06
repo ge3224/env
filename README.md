@@ -261,7 +261,7 @@ DEV_ENV=$(pwd) ./run fonts
 - **ghostty**: Terminal emulator
 
 ### Development
-- **dev**: Language toolchains (Rust, Go, Node, Deno, OCaml, Docker)
+- **dev**: Language toolchains (Rust, Go, Node, Deno, OCaml, Podman)
 - **nvim**: Neovim with LSP support
 - **tmux**: Terminal multiplexer
 
