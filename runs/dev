@@ -17,7 +17,9 @@ install_packages \
     opam \
     python-pip \
     python-pipx \
-    python-poetry
+    python-poetry \
+    zig \
+    zls
 
 echo "Checking for Deno..."
 if ! command -v deno >/dev/null 2>&1; then
