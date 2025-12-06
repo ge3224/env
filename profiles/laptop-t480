@@ -8,6 +8,7 @@
 
 # === Configuration ===
 waybar.style=files/waybar/style-laptop.css
+monitor.primary=eDP-1,1920x1080@60,0x0,1.25
 
 # === Core System ===
 ssh-agent

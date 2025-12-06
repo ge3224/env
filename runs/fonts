@@ -27,6 +27,14 @@ FONT_PACKAGES=(
 echo "Installing font packages..."
 install_packages "${FONT_PACKAGES[@]}"
 
+echo "Enabling subpixel RGB rendering system-wide..."
+if [ ! -e /etc/fonts/conf.d/10-sub-pixel-rgb.conf ]; then
+    sudo ln -s /usr/share/fontconfig/conf.avail/10-sub-pixel-rgb.conf /etc/fonts/conf.d/10-sub-pixel-rgb.conf
+    echo "Enabled subpixel RGB rendering"
+else
+    echo "Subpixel RGB rendering already enabled"
+fi
+
 echo "Updating font cache..."
 fc-cache -f
 
