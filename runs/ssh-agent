@@ -5,31 +5,95 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 source "$SCRIPT_DIR/_common.sh"
 
-echo "Setting up SSH agent with keychain for automatic key loading..."
+echo "Setting up GPG agent for SSH key management..."
 
-echo "Installing keychain..."
-install_packages keychain
-if ! grep -q "keychain.*id_ed25519" "$HOME/.bashrc" 2>/dev/null; then
-    echo "Configuring keychain in .bashrc..."
-    cat >> "$HOME/.bashrc" << 'EOF'
-
-eval $(keychain --eval --quiet id_ed25519)
-EOF
-    echo "keychain configured in .bashrc"
+echo "Checking for GnuPG..."
+if ! command -v gpg-agent &> /dev/null; then
+    echo "Installing gnupg..."
+    install_packages gnupg
 else
-    echo "keychain already configured in .bashrc"
+    echo "GnuPG already installed"
 fi
 
+mkdir -p ~/.gnupg
+chmod 700 ~/.gnupg
+
+GPG_AGENT_CONF="$HOME/.gnupg/gpg-agent.conf"
+echo "Configuring gpg-agent for SSH support..."
+
+if ! grep -q "^enable-ssh-support" "$GPG_AGENT_CONF" 2>/dev/null; then
+    cat >> "$GPG_AGENT_CONF" << 'EOF'
+
+enable-ssh-support
+default-cache-ttl-ssh 86400
+max-cache-ttl-ssh 86400
+EOF
+    echo "Added SSH support to gpg-agent.conf"
+else
+    echo "SSH support already enabled in gpg-agent.conf"
+fi
+
+chmod 600 "$GPG_AGENT_CONF"
+
+echo "Configuring shell environment..."
+
+BASHRC_SSH_CONFIG='
+# Use GPG agent for SSH authentication
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+'
+
+if ! grep -q "SSH_AUTH_SOCK.*gpgconf" "$HOME/.bashrc" 2>/dev/null; then
+    echo "Adding SSH_AUTH_SOCK configuration to .bashrc..."
+    echo "$BASHRC_SSH_CONFIG" >> "$HOME/.bashrc"
+    echo "Updated .bashrc"
+else
+    echo "SSH_AUTH_SOCK already configured in .bashrc"
+fi
+
+if [ -f "$HOME/.bash_profile" ]; then
+    if ! grep -q "SSH_AUTH_SOCK.*gpgconf" "$HOME/.bash_profile" 2>/dev/null; then
+        echo "Adding SSH_AUTH_SOCK configuration to .bash_profile..."
+        echo "$BASHRC_SSH_CONFIG" >> "$HOME/.bash_profile"
+        echo "Updated .bash_profile"
+    else
+        echo "SSH_AUTH_SOCK already configured in .bash_profile"
+    fi
+fi
+
+echo "Enabling GPG agent SSH socket..."
+systemctl --user enable gpg-agent.socket
+systemctl --user enable gpg-agent-ssh.socket
+
+echo "Reloading GPG agent..."
+gpgconf --kill gpg-agent 2>/dev/null || true
+gpgconf --launch gpg-agent
+
 echo ""
-echo "SSH agent setup with keychain completed!"
+echo "============================================"
+echo "GPG Agent SSH Setup Complete!"
+echo "============================================"
 echo ""
 echo "How it works:"
-echo "  1. First time you open a terminal: keychain prompts for your SSH key passphrase"
-echo "  2. It starts ssh-agent and adds your key"
-echo "  3. The agent persists - future terminals/sessions reuse the same agent"
-echo "  4. After reboot: first terminal asks for passphrase again, then cached"
+echo "  - GPG agent now handles SSH authentication"
+echo "  - SSH keys are cached for 24 hours (configurable in ~/.gnupg/gpg-agent.conf)"
+echo "  - Effectively once per boot for most use cases"
+echo "  - The agent persists across terminal sessions"
+echo "  - After reboot, the agent restarts automatically via systemd"
 echo ""
-echo "To test now:"
-echo "  1. Open a new terminal (or run: source ~/.bashrc)"
-echo "  2. keychain will prompt for your passphrase once"
-echo "  3. All future terminals will use the same agent automatically"
+echo "Next steps:"
+echo "  1. Restart your terminal (or run: source ~/.bashrc)"
+echo "  2. Add your SSH key to the agent:"
+echo "     ssh-add ~/.ssh/id_ed25519"
+echo "  3. Enter your passphrase when prompted"
+echo "  4. Your key is now cached - future git operations won't ask for passphrase"
+echo ""
+echo "To verify setup:"
+echo "  echo \$SSH_AUTH_SOCK    # Should show: /run/user/\$(id -u)/gnupg/S.gpg-agent.ssh"
+echo "  ssh-add -l              # Should list your SSH key after adding it"
+echo ""
+echo "To check status:"
+echo "  systemctl --user status gpg-agent-ssh.socket"
+echo ""
+echo "To change cache duration, edit ~/.gnupg/gpg-agent.conf and run:"
+echo "  gpgconf --reload gpg-agent"
+echo ""

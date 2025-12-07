@@ -80,5 +80,5 @@ source "$HOME/.cargo/env"
 export PATH="$PATH:$(go env GOPATH)/bin"
 export EDITOR=nvim
 
-# SSH agent via keychain - automatically loads SSH keys
-eval $(keychain --eval --quiet id_ed25519)
+# Use GPG agent for SSH authentication
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
