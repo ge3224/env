@@ -1,0 +1,45 @@
+# Desktop Z390 Workstation Profile
+# Scripts to run for desktop workstation with Hyprland/Wayland
+# Intel i5-9600K | NVIDIA GTX 1660 SUPER | ASRock Z390
+
+# === Configuration ===
+hypr.local=files/hypr/local-desktop.conf
+hyprpaper.config=files/hypr/hyprpaper-desktop.conf
+waybar.config=files/waybar/config-desktop.jsonc
+waybar.style=files/waybar/style-desktop.css
+aur.packages=cheat-bin,claude-code,google-chrome,rustdesk-bin,zen-browser-bin
+
+# === Core System ===
+ssh-agent
+reflector
+pacman
+core
+fonts
+
+# === Desktop Environment (Wayland/Hyprland) ===
+hypr
+waybar
+hyprpaper
+fcitx5
+gtk
+gsettings
+gdm
+
+# === Shell & Terminal ===
+bash
+ghostty
+tmux
+
+# === Development Tools ===
+dev
+aur  # Must run after 'dev' and 'core' (requires Rust and make to build paru)
+neovim
+
+# === Applications ===
+signal
+tailscale
+usb
+cheat
+
+# === System Updates ===
+update

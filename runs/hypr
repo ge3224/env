@@ -31,18 +31,20 @@ else
     ln -sf "$DOTFILES_DIR/files/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.conf"
 fi
 
-echo "Creating local.conf with monitor configuration..."
-if [ -n "${PROFILE_MONITOR_PRIMARY:-}" ]; then
-    echo "Using profile monitor configuration: $PROFILE_MONITOR_PRIMARY"
-    cat > "$HOME/.config/hypr/local.conf" << EOF
-monitor=$PROFILE_MONITOR_PRIMARY
-EOF
+echo "Setting up local.conf..."
+if [ -n "${PROFILE_HYPR_LOCAL:-}" ]; then
+    LOCAL_SOURCE="$DOTFILES_DIR/$PROFILE_HYPR_LOCAL"
+    if [ -f "$LOCAL_SOURCE" ]; then
+        echo "Using profile-specific local config: $PROFILE_HYPR_LOCAL"
+        ln -sf "$LOCAL_SOURCE" "$HOME/.config/hypr/local.conf"
+    else
+        echo "Warning: Profile specified local config not found: $PROFILE_HYPR_LOCAL"
+        echo "Creating empty local.conf"
+        touch "$HOME/.config/hypr/local.conf"
+    fi
 else
-    echo "No monitor configuration in profile, using auto-detect defaults"
-    cat > "$HOME/.config/hypr/local.conf" << 'EOF'
-# No monitor configuration specified in profile
-# The base hyprland.conf will use: monitor=,preferred,auto,1.0
-EOF
+    echo "No profile-specific local config, creating empty local.conf"
+    touch "$HOME/.config/hypr/local.conf"
 fi
 
 echo "Hyprland configuration installed successfully!"

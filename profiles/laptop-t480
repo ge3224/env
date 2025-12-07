@@ -7,8 +7,10 @@
 # Config variables: key=value (will be exported as PROFILE_KEY env var)
 
 # === Configuration ===
+hypr.local=files/hypr/local-laptop.conf
+hyprpaper.config=files/hypr/hyprpaper-laptop.conf
+waybar.config=files/waybar/config-laptop.jsonc
 waybar.style=files/waybar/style-laptop.css
-monitor.primary=eDP-1,1920x1080@60,0x0,1.25
 aur.packages=cheat-bin,claude-code,clickup,figma-linux-bin,google-chrome,postman-bin,proton-mail-bin,rustdesk-bin,slack-desktop,tailwindcss-cli,xnviewmp,zen-browser-bin,zoom
 
 # === Core System ===

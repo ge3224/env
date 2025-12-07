@@ -16,23 +16,39 @@ echo "hyprpaper installed successfully!"
 mkdir -p "$HOME/.config/hypr"
 mkdir -p "$HOME/Pictures/wallpapers"
 mkdir -p "$HOME/.local/bin"
+
+# Determine which hyprpaper config to use
+if [ -n "${PROFILE_HYPRPAPER_CONFIG:-}" ]; then
+    CONFIG_SOURCE="$DOTFILES_DIR/$PROFILE_HYPRPAPER_CONFIG"
+    if [ -f "$CONFIG_SOURCE" ]; then
+        echo "Using profile-specific hyprpaper config: $PROFILE_HYPRPAPER_CONFIG"
+    else
+        echo "Warning: Profile specified hyprpaper config not found: $PROFILE_HYPRPAPER_CONFIG"
+        echo "Falling back to default hyprpaper.conf"
+        CONFIG_SOURCE="$DOTFILES_DIR/files/hypr/hyprpaper.conf"
+    fi
+else
+    echo "No profile-specific hyprpaper config, using default hyprpaper.conf"
+    CONFIG_SOURCE="$DOTFILES_DIR/files/hypr/hyprpaper.conf"
+fi
+
 if [ -e "$HOME/.config/hypr/hyprpaper.conf" ]; then
     if [ -L "$HOME/.config/hypr/hyprpaper.conf" ]; then
         CURRENT_TARGET=$(readlink "$HOME/.config/hypr/hyprpaper.conf")
-        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/hypr/hyprpaper.conf" ]; then
+        if [ "$CURRENT_TARGET" = "$CONFIG_SOURCE" ]; then
             echo "hyprpaper.conf symlink already points to correct target, skipping"
         else
             echo "Existing hyprpaper.conf symlink points to different location, updating"
             rm "$HOME/.config/hypr/hyprpaper.conf"
-            ln -sf "$DOTFILES_DIR/files/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf"
+            ln -sf "$CONFIG_SOURCE" "$HOME/.config/hypr/hyprpaper.conf"
         fi
     else
         echo "Backing up existing hyprpaper.conf to hyprpaper.conf.backup"
         cp "$HOME/.config/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf.backup"
-        ln -sf "$DOTFILES_DIR/files/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf"
+        ln -sf "$CONFIG_SOURCE" "$HOME/.config/hypr/hyprpaper.conf"
     fi
 else
-    ln -sf "$DOTFILES_DIR/files/hypr/hyprpaper.conf" "$HOME/.config/hypr/hyprpaper.conf"
+    ln -sf "$CONFIG_SOURCE" "$HOME/.config/hypr/hyprpaper.conf"
 fi
 
 echo "Installing wallpaper randomizer script"

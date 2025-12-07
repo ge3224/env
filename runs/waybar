@@ -12,23 +12,46 @@ echo "Installing waybar..."
 install_packages waybar
 
 mkdir -p "$HOME/.config/waybar"
+
+# Clean up any broken symlinks (e.g., old feature branch references)
+if [ -L "$HOME/.config/waybar/config" ] && [ ! -e "$HOME/.config/waybar/config" ]; then
+    echo "Removing broken symlink: config"
+    rm "$HOME/.config/waybar/config"
+fi
+
+# Determine which config to use
+if [ -n "${PROFILE_WAYBAR_CONFIG:-}" ]; then
+    CONFIG_SOURCE="$DOTFILES_DIR/$PROFILE_WAYBAR_CONFIG"
+    if [ -f "$CONFIG_SOURCE" ]; then
+        echo "Using profile-specific config: $PROFILE_WAYBAR_CONFIG"
+    else
+        echo "Warning: Profile specified config file not found: $PROFILE_WAYBAR_CONFIG"
+        echo "Falling back to default config.jsonc"
+        CONFIG_SOURCE="$DOTFILES_DIR/files/waybar/config.jsonc"
+    fi
+else
+    echo "No profile-specific config, using default config.jsonc"
+    CONFIG_SOURCE="$DOTFILES_DIR/files/waybar/config.jsonc"
+fi
+
+# Symlink the config
 if [ -e "$HOME/.config/waybar/config.jsonc" ]; then
     if [ -L "$HOME/.config/waybar/config.jsonc" ]; then
         CURRENT_TARGET=$(readlink "$HOME/.config/waybar/config.jsonc")
-        if [ "$CURRENT_TARGET" = "$DOTFILES_DIR/files/waybar/config.jsonc" ]; then
+        if [ "$CURRENT_TARGET" = "$CONFIG_SOURCE" ]; then
             echo "config.jsonc symlink already points to correct target, skipping"
         else
             echo "Existing waybar config symlink points to different location, updating"
             rm "$HOME/.config/waybar/config.jsonc"
-            ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
+            ln -sf "$CONFIG_SOURCE" "$HOME/.config/waybar/config.jsonc"
         fi
     else
         echo "Backing up existing waybar config to .config/waybar/config.jsonc.backup"
         mv "$HOME/.config/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc.backup"
-        ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
+        ln -sf "$CONFIG_SOURCE" "$HOME/.config/waybar/config.jsonc"
     fi
 else
-    ln -sf "$DOTFILES_DIR/files/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
+    ln -sf "$CONFIG_SOURCE" "$HOME/.config/waybar/config.jsonc"
 fi
 
 if [ -e "$HOME/.config/waybar/style.css" ]; then
