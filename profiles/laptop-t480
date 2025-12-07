@@ -37,9 +37,9 @@ bash
 ghostty
 tmux
 
-# === Development Tools ===
-dev
-aur  # Must run after 'dev' and 'core' (requires Rust and make to build paru)
+# === Applications & Development ===
+apps
+aur  # Must run after 'apps' and 'core' (requires Rust and make to build paru)
 neovim
 
 # === Applications ===

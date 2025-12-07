@@ -3,24 +3,63 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 source "$SCRIPT_DIR/_common.sh"
 
-echo "Setting up development tools..."
+echo "Installing applications and development tools..."
 
-echo "Installing language tools and package managers..."
-install_packages \
-    dart \
-    gemini-cli \
-    go \
-    nodejs \
-    npm \
-    pnpm \
-    opam \
-    python-pip \
-    python-pipx \
-    python-poetry \
-    zig \
-    zls
+# Desktop applications
+desktop_apps=(
+    "gimp"
+    "inkscape"
+    "gthumb"
+    "vlc"
+    "firefox"
+    "libreoffice-fresh"
+    "obs-studio"
+    "evince"
+    "qbittorrent"
+    "obsidian"
+    "syncthing"
+)
+
+# Development tools and language toolchains
+dev_tools=(
+    "dart"
+    "gemini-cli"
+    "go"
+    "nodejs"
+    "npm"
+    "pnpm"
+    "opam"
+    "python-pip"
+    "python-pipx"
+    "python-poetry"
+    "zig"
+    "zls"
+    "gcc"
+    "clang"
+    "make"
+    "cmake"
+    "gdb"
+    "valgrind"
+)
+
+# Container runtime
+containers=(
+    "podman"
+    "podman-compose"
+    "podman-docker"
+)
+
+echo "Installing desktop applications..."
+install_packages_with_log "APPS" "${desktop_apps[@]}"
+
+echo "Installing development tools and language toolchains..."
+install_packages_with_log "APPS" "${dev_tools[@]}"
+
+echo "Installing container runtime..."
+install_packages_with_log "APPS" "${containers[@]}"
 
 echo "Checking for Deno..."
 if ! command -v deno >/dev/null 2>&1; then
@@ -59,11 +98,8 @@ for pkg in odoc ocamlformat utop; do
     fi
 done
 
-echo "Installing Podman..."
-install_packages podman podman-compose podman-docker
-
 echo "Enabling Podman socket..."
 systemctl --user enable --now podman.socket
 
-echo "Development tools installed!"
+echo "Applications and development tools installed!"
 echo "Note: Podman runs rootless by default. The podman-docker package provides Docker CLI compatibility."
