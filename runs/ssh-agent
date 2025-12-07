@@ -50,16 +50,6 @@ else
     echo "SSH_AUTH_SOCK already configured in .bashrc"
 fi
 
-if [ -f "$HOME/.bash_profile" ]; then
-    if ! grep -q "SSH_AUTH_SOCK.*gpgconf" "$HOME/.bash_profile" 2>/dev/null; then
-        echo "Adding SSH_AUTH_SOCK configuration to .bash_profile..."
-        echo "$BASHRC_SSH_CONFIG" >> "$HOME/.bash_profile"
-        echo "Updated .bash_profile"
-    else
-        echo "SSH_AUTH_SOCK already configured in .bash_profile"
-    fi
-fi
-
 echo "Enabling GPG agent SSH socket..."
 systemctl --user enable gpg-agent.socket
 systemctl --user enable gpg-agent-ssh.socket
