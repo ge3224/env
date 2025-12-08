@@ -25,6 +25,7 @@ t480
 # keyboard - CapsLock->Esc mapping configured in hyprland.conf (kb_options)
 
 # === Desktop Environment (Wayland/Hyprland) ===
+gdm  # Display manager (hides GNOME sessions, only shows Hyprland)
 hypr
 waybar
 hyprpaper

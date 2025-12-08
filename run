@@ -97,6 +97,15 @@ else
     log "Internet connectivity: offline (package installations will be skipped)"
 fi
 
+if ! sudo -v -n &>/dev/null; then
+    log "Sudo credentials needed for some scripts..."
+    if ! sudo -v; then
+        log "ERROR: Failed to obtain sudo credentials"
+        exit 1
+    fi
+    log "Sudo credentials cached successfully"
+fi
+
 log "Caching installed packages list..."
 export INSTALLED_PACKAGES=$(pacman -Qq 2>/dev/null || echo "")
 if [ -n "$INSTALLED_PACKAGES" ]; then
