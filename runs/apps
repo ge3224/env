@@ -21,6 +21,14 @@ desktop_apps=(
     "qbittorrent"
     "obsidian"
     "syncthing"
+    "dolphin"
+)
+
+# Desktop environment utilities (Wayland/Hyprland)
+desktop_env=(
+    "wofi"
+    "dunst"
+    "polkit-kde-agent"
 )
 
 # Development tools and language toolchains
@@ -54,6 +62,9 @@ containers=(
 
 echo "Installing desktop applications..."
 install_packages_with_log "APPS" "${desktop_apps[@]}"
+
+echo "Installing desktop environment utilities..."
+install_packages_with_log "APPS" "${desktop_env[@]}"
 
 echo "Installing development tools and language toolchains..."
 install_packages_with_log "APPS" "${dev_tools[@]}"
