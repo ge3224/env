@@ -10,6 +10,7 @@ waybar.style=files/waybar/style-desktop.css
 aur.packages=cheat-bin,claude-code,google-chrome,rustdesk-bin,zen-browser-bin
 
 # === Core System ===
+z390
 ssh-agent
 reflector
 pacman

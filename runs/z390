@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
+
+echo "Configuring Z390 desktop workstation settings..."
+
+# Power Management: Allow sleep but disable hibernation
+echo "Configuring power management (sleep enabled, hibernation disabled)..."
+sudo mkdir -p /etc/systemd/sleep.conf.d
+sudo tee /etc/systemd/sleep.conf.d/z390-power.conf > /dev/null <<'EOF'
+[Sleep]
+AllowSuspend=yes
+AllowHibernation=no
+AllowHybridSleep=no
+AllowSuspendThenHibernate=no
+EOF
+
+# Power Button Configuration
+echo "Configuring power button behavior..."
+sudo mkdir -p /etc/systemd/logind.conf.d
+sudo tee /etc/systemd/logind.conf.d/z390-power.conf > /dev/null <<'EOF'
+[Login]
+# Power button performs clean shutdown
+HandlePowerKey=poweroff
+# Disable other sleep triggers
+HandleSuspendKey=ignore
+HandleHibernateKey=ignore
+EOF
+
+echo "Reloading systemd-logind service..."
+sudo systemctl reload systemd-logind.service
+
+echo "Z390 desktop configuration complete!"
+echo "Power management configured:"
+echo "  - Sleep (suspend): ENABLED"
+echo "  - Hibernation: DISABLED"
+echo "  - Power button: Clean poweroff"
