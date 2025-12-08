@@ -15,6 +15,7 @@ reflector
 pacman
 core
 fonts
+ssd-trim
 
 # === Desktop Environment (Wayland/Hyprland) ===
 hypr

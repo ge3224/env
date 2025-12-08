@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
+
+# Parse arguments
+DRY_RUN=0
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run|--dry)
+            DRY_RUN=1
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: $0 [--dry-run]"
+            exit 1
+            ;;
+    esac
+done
+
+log() {
+    if [[ $DRY_RUN == 1 ]]; then
+        echo "[SSD-TRIM] [DRY-RUN] $1"
+    else
+        echo "[SSD-TRIM] $1"
+    fi
+}
+
+run_cmd() {
+    if [[ $DRY_RUN == 1 ]]; then
+        log "Would run: $*"
+    else
+        "$@"
+    fi
+}
+
+log "Configuring SSD TRIM optimization..."
+
+# Check for sudo credentials (skip in dry-run mode)
+if [[ $DRY_RUN == 0 ]]; then
+    if ! sudo -v -n &>/dev/null; then
+        log "WARNING: sudo credentials are not available or have timed out."
+        log "Please run 'sudo -v' to cache your credentials and re-run the script."
+        log "Or run this script manually: ./runs/ssd-trim"
+        exit 1
+    fi
+else
+    log "Dry-run mode: will show what would be done without making changes"
+fi
+
+# Check if we have any SSDs
+if ! lsblk -d -o NAME,ROTA | grep -q "0$"; then
+    log "No SSDs detected (all drives are rotational). Skipping TRIM configuration."
+    exit 0
+fi
+
+log "SSD(s) detected:"
+lsblk -d -o NAME,ROTA,SIZE,MODEL | grep " 0 " || true
+
+# Enable periodic TRIM via fstrim.timer
+log "Enabling weekly TRIM via fstrim.timer..."
+if systemctl is-enabled fstrim.timer &>/dev/null; then
+    log "fstrim.timer already enabled"
+else
+    run_cmd sudo systemctl enable fstrim.timer
+    if [[ $DRY_RUN == 0 ]]; then
+        log "fstrim.timer enabled (will run weekly)"
+    fi
+fi
+
+if systemctl is-active fstrim.timer &>/dev/null; then
+    log "fstrim.timer is active"
+else
+    run_cmd sudo systemctl start fstrim.timer
+    if [[ $DRY_RUN == 0 ]]; then
+        log "fstrim.timer started"
+    fi
+fi
+
+# Check if system uses LUKS encryption
+if grep -q "cryptdevice=" /proc/cmdline || [ -f /etc/crypttab ]; then
+    log "LUKS encryption detected"
+
+    # Check if allow-discards is already enabled
+    if grep -q "cryptdevice=.*:allow-discards" /proc/cmdline 2>/dev/null; then
+        log "LUKS allow-discards already enabled in kernel parameters"
+    elif [ -f /etc/crypttab ] && grep -q "discard" /etc/crypttab 2>/dev/null; then
+        log "LUKS discards already enabled in /etc/crypttab"
+    else
+        log "LUKS encryption is blocking TRIM - enabling discards..."
+        log ""
+        log "Current kernel cmdline:"
+        CURRENT_CRYPTDEVICE=$(grep -o "cryptdevice=[^ ]*" /proc/cmdline || true)
+        log "  $CURRENT_CRYPTDEVICE"
+        log ""
+
+        if [[ $DRY_RUN == 1 ]]; then
+            log "Would enable LUKS discards (skipped in dry-run mode)"
+        else
+            # Backup GRUB config
+            GRUB_BACKUP="/etc/default/grub.backup.ssd-trim.$(date +%Y%m%d_%H%M%S)"
+            log "Backing up GRUB config to: $GRUB_BACKUP"
+            run_cmd sudo cp /etc/default/grub "$GRUB_BACKUP"
+
+            # Edit GRUB config to add :allow-discards
+            log "Modifying /etc/default/grub to add :allow-discards..."
+            run_cmd sudo sed -i 's/\(cryptdevice=[^: ]*:[^: ]*\)\([: ]\)/\1:allow-discards\2/g' /etc/default/grub
+
+            # Verify the change
+            if sudo grep -q "cryptdevice=.*:allow-discards" /etc/default/grub; then
+                log "✓ Successfully added :allow-discards to GRUB config"
+
+                # Regenerate GRUB configuration
+                log "Regenerating GRUB configuration..."
+                run_cmd sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+                log ""
+                log "✓ LUKS discards enabled successfully!"
+                log ""
+                log "⚠️  REBOOT REQUIRED for changes to take effect"
+                log ""
+                log "Security note: This reveals which disk blocks contain data vs empty space."
+                log "For most users this is acceptable."
+                log ""
+                log "After reboot, TRIM will work properly on your encrypted SSD."
+            else
+                log "ERROR: Failed to add :allow-discards to GRUB config"
+                log "Restoring backup: $GRUB_BACKUP"
+                run_cmd sudo cp "$GRUB_BACKUP" /etc/default/grub
+                log "Please enable LUKS discards manually or check GRUB configuration"
+            fi
+        fi
+    fi
+else
+    log "No LUKS encryption detected - TRIM will work without additional configuration"
+fi
+
+# Show TRIM status
+log ""
+log "TRIM Configuration Summary:"
+log "  fstrim.timer: $(systemctl is-enabled fstrim.timer 2>/dev/null || echo 'disabled')"
+log "  Next TRIM run: $(systemctl status fstrim.timer 2>/dev/null | grep -i 'trigger:' | awk '{print $2, $3, $4}' || echo 'unknown')"
+log ""
+log "To manually run TRIM now: sudo fstrim -av"
+
+log "SSD TRIM configuration completed!"
