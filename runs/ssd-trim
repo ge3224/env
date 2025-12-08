@@ -87,6 +87,8 @@ if grep -q "cryptdevice=" /proc/cmdline || [ -f /etc/crypttab ]; then
     # Check if allow-discards is already enabled
     if grep -q "cryptdevice=.*:allow-discards" /proc/cmdline 2>/dev/null; then
         log "LUKS allow-discards already enabled in kernel parameters"
+    elif [ -f /etc/default/grub ] && sudo grep -q "cryptdevice=.*:allow-discards" /etc/default/grub 2>/dev/null; then
+        log "LUKS allow-discards already configured in GRUB (reboot required to take effect)"
     elif [ -f /etc/crypttab ] && grep -q "discard" /etc/crypttab 2>/dev/null; then
         log "LUKS discards already enabled in /etc/crypttab"
     else
