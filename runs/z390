@@ -33,8 +33,60 @@ EOF
 echo "Reloading systemd-logind service..."
 sudo systemctl reload systemd-logind.service
 
+# NVIDIA Power Management for Suspend/Resume
+if lspci | grep -qi nvidia; then
+    echo "Configuring NVIDIA power management for suspend/resume..."
+    sudo mkdir -p /etc/modprobe.d
+    sudo tee /etc/modprobe.d/nvidia-power.conf > /dev/null <<'EOF'
+# Enable NVIDIA suspend/resume support
+options nvidia NVreg_PreserveVideoMemoryAllocations=1
+EOF
+
+    # Ensure NVIDIA systemd services are enabled
+    for service in nvidia-suspend nvidia-hibernate nvidia-resume; do
+        if ! systemctl is-enabled $service &>/dev/null; then
+            echo "Enabling $service..."
+            sudo systemctl enable $service
+        fi
+    done
+
+    echo "NVIDIA power management configured (reboot required)"
+else
+    echo "No NVIDIA GPU detected, skipping NVIDIA power config"
+fi
+
+# USB Controller Suspend Fix
+echo "Configuring USB controller for reliable suspend/resume..."
+sudo mkdir -p /etc/udev/rules.d
+sudo tee /etc/udev/rules.d/50-usb-wakeup.rules > /dev/null <<'EOF'
+# Disable USB autosuspend to prevent suspend/resume issues
+# This prevents USB controllers from entering power-saving states that can cause wake failures
+ACTION=="add", SUBSYSTEM=="usb", TEST=="power/control", ATTR{power/control}="on"
+ACTION=="add", SUBSYSTEM=="pci", DRIVER=="xhci_hcd", TEST=="power/control", ATTR{power/control}="on"
+
+# Enable USB wake for all USB devices (keyboard, mouse, hubs)
+# This allows USB devices to wake the system from suspend
+ACTION=="add", SUBSYSTEM=="usb", TEST=="power/wakeup", ATTR{power/wakeup}="enabled"
+EOF
+
+echo "Reloading udev rules..."
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+
+echo "Enabling wake on all currently connected USB devices..."
+for device in /sys/bus/usb/devices/*/power/wakeup; do
+    if [ -f "$device" ]; then
+        echo enabled | sudo tee "$device" > /dev/null 2>&1 || true
+    fi
+done
+
+echo ""
 echo "Z390 desktop configuration complete!"
 echo "Power management configured:"
 echo "  - Sleep (suspend): ENABLED"
 echo "  - Hibernation: DISABLED"
 echo "  - Power button: Clean poweroff"
+echo "  - USB autosuspend: DISABLED (prevents wake failures)"
+if lspci | grep -qi nvidia; then
+    echo "  - NVIDIA suspend/resume: ENABLED (reboot required)"
+fi

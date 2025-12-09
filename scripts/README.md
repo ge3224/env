@@ -16,3 +16,4 @@ Or add this directory to your PATH for easier access.
 ## Scripts
 
 - `timezone` - Detect and update system timezone based on IP geolocation (useful when traveling)
+- `reflector.sh` - Find and configure the fastest Arch Linux mirrors via comprehensive speed testing (takes several minutes)
