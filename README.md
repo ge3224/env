@@ -43,7 +43,7 @@ A modular environment setup for Arch Linux with automated installation and confi
 │   ├── laptop-t480       # T480 laptop configuration
 │   └── shared            # Minimal shared configuration
 ├── runs/                  # Installation and setup scripts
-│   ├── aur               # AUR package submodules
+│   ├── aur               # Builds/installs maur AUR helper
 │   ├── core              # Core system packages
 │   ├── t480              # T480-specific hardware configs
 │   ├── fonts             # System fonts
@@ -246,7 +246,7 @@ DEV_ENV=$(pwd) ./run fonts
 - **core**: Essential utilities (ripgrep, fd, tree, imagemagick, etc.)
 - **fonts**: Comprehensive font coverage with Nerd Fonts
 - **keyboard**: Keyboard remapping (CapsLock → Esc)
-- **aur**: AUR package management via submodules
+- **aur**: Builds/installs maur (chroot-based AUR helper), manages packages as git submodules
 
 ### Hardware (T480-Specific)
 - **t480**: Throttling control, backlight, firmware updates
