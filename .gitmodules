@@ -21,4 +21,4 @@
 	url = https://aur.archlinux.org/zen-browser-bin.git
 [submodule "tools/maur"]
 	path = tools/maur
-	url = ssh://git@codeberg.org/inthejar/maur.git
+	url = https://codeberg.org/inthejar/maur.git
