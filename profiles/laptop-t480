@@ -40,7 +40,7 @@ tmux
 
 # === Applications & Development ===
 apps
-aur  # Must run after 'apps' and 'core' (requires Rust and make to build paru)
+aur  # Must run after 'core' (requires base-devel to build maur)
 neovim
 
 # === Applications ===

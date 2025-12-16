@@ -8,7 +8,7 @@ A modular environment setup for Arch Linux with automated installation and confi
 - **Machine-Specific Configs**: Supports laptop-specific (T480) and desktop-specific configurations
 - **Configuration Management**: Dotfiles for i3, Neovim, Tmux, Ghostty, and more
 - **Automated Setup**: Shell scripts that handle package installation and configuration deployment
-- **AUR Support**: Automated installation of AUR packages via git submodules
+- **AUR Support**: Automated installation of AUR packages via maur (chroot-based builds, local cache)
 - **Hardware Optimization**: T480-specific throttling, power management, and backlight control
 
 ## Supported Machines
@@ -52,7 +52,7 @@ A modular environment setup for Arch Linux with automated installation and confi
 │   ├── dev               # Development tools
 │   └── ...               # Additional components
 ├── files/                # Configuration files and dotfiles
-├── aur/                  # AUR package git submodules
+├── tools/                # Tools (maur AUR helper)
 └── scripts/              # Utility scripts
 ```
 
@@ -246,7 +246,7 @@ DEV_ENV=$(pwd) ./run fonts
 - **core**: Essential utilities (ripgrep, fd, tree, imagemagick, etc.)
 - **fonts**: Comprehensive font coverage with Nerd Fonts
 - **keyboard**: Keyboard remapping (CapsLock → Esc)
-- **aur**: Builds/installs maur (chroot-based AUR helper), manages packages as git submodules
+- **aur**: Builds/installs maur (chroot-based AUR helper), manages packages in local cache (~/.cache/maur)
 
 ### Hardware (T480-Specific)
 - **t480**: Throttling control, backlight, firmware updates
