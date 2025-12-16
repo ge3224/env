@@ -11,7 +11,7 @@ hypr.local=files/hypr/local-laptop.conf
 hyprpaper.config=files/hypr/hyprpaper-laptop.conf
 waybar.config=files/waybar/config-laptop.jsonc
 waybar.style=files/waybar/style-laptop.css
-aur.packages=cheat-bin,claude-code,clickup,figma-linux-bin,google-chrome,postman-bin,proton-mail-bin,rustdesk-bin,slack-desktop,tailwindcss-cli,xnviewmp,zen-browser-bin,zoom
+aur.packages=cheat-bin,claude-code,clickup,figma-linux-bin,google-chrome,postman-bin,proton-mail-bin,rustdesk-bin,slack-desktop,xnviewmp,zen-browser-bin,zoom
 
 # === Core System ===
 ssh-agent
