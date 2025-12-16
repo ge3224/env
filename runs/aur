@@ -60,19 +60,27 @@ echo "  Config: ~/.config/maur/config"
 echo "  Build: /var/tmp/maur-builds (or same as cache)"
 
 # Initialize chroot build environment
-echo "Initializing chroot build environment..."
-echo "This may take a few minutes on first run..."
-if maur chroot-init; then
-    echo "Chroot initialized successfully"
+# Check if chroot already exists (maur uses /var/lib/archbuild/maur by default)
+if [[ -d /var/lib/archbuild/maur ]] || [[ -d "$HOME/.cache/maur/chroot" ]]; then
+    echo "Chroot build environment already initialized"
 else
-    echo "WARNING: chroot initialization failed"
-    echo "You may need to run manually: maur chroot-init"
+    echo "Initializing chroot build environment..."
+    echo "This may take a few minutes on first run..."
+    if maur chroot-init; then
+        echo "Chroot initialized successfully"
+    else
+        echo "WARNING: chroot initialization failed"
+        echo "You may need to run manually: maur chroot-init"
+    fi
 fi
 
 # Install packages specified in profile
 if [[ -n "${PROFILE_AUR_PACKAGES:-}" ]]; then
     echo ""
     echo "Installing AUR packages from profile..."
+
+    # Get list of cached packages for efficient lookup
+    CACHED_PACKAGES=$(maur list 2>/dev/null || echo "")
 
     # Split comma-separated package list
     IFS=',' read -ra PACKAGES <<< "$PROFILE_AUR_PACKAGES"
@@ -84,15 +92,22 @@ if [[ -n "${PROFILE_AUR_PACKAGES:-}" ]]; then
         echo ""
         echo "=== Processing $pkg ==="
 
-        # Check if package is already installed (system-wide)
-        if pacman -Q "$pkg" &>/dev/null; then
-            echo "$pkg is already installed (skipping)"
-            continue
-        fi
+        # Check if package is already in maur cache
+        if echo "$CACHED_PACKAGES" | grep -q "^$pkg$"; then
+            echo "$pkg is already cached"
 
-        # Add to cache and install
-        echo "Adding $pkg to cache and installing..."
-        maur add "$pkg"
+            # Check if installed
+            if pacman -Q "$pkg" &>/dev/null; then
+                echo "$pkg is already installed"
+            else
+                echo "Installing $pkg from cache..."
+                maur install "$pkg"
+            fi
+        else
+            # Not in cache - add it (will also install if not already installed)
+            echo "Adding $pkg to cache..."
+            maur add "$pkg"
+        fi
     done
 
     echo ""
