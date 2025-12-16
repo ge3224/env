@@ -60,8 +60,23 @@ echo "  Config: ~/.config/maur/config"
 echo "  Build: /var/tmp/maur-builds (or same as cache)"
 
 # Initialize chroot build environment
-# Check if chroot already exists (maur uses /var/lib/archbuild/maur by default)
-if [[ -d /var/lib/archbuild/maur ]] || [[ -d "$HOME/.cache/maur/chroot" ]]; then
+# Check if chroot already exists
+# Default chroot locations based on chroot_type (extra-x86_64, multilib, etc.)
+CHROOT_PATHS=(
+    "/var/lib/archbuild/extra-x86_64/root"
+    "/var/lib/archbuild/multilib/root"
+)
+
+CHROOT_EXISTS=false
+for path in "${CHROOT_PATHS[@]}"; do
+    if [[ -d "$path" ]]; then
+        CHROOT_EXISTS=true
+        echo "Found existing chroot at $path"
+        break
+    fi
+done
+
+if [[ "$CHROOT_EXISTS" == "true" ]]; then
     echo "Chroot build environment already initialized"
 else
     echo "Initializing chroot build environment..."
@@ -79,9 +94,6 @@ if [[ -n "${PROFILE_AUR_PACKAGES:-}" ]]; then
     echo ""
     echo "Installing AUR packages from profile..."
 
-    # Get list of cached packages for efficient lookup
-    CACHED_PACKAGES=$(maur list 2>/dev/null || echo "")
-
     # Split comma-separated package list
     IFS=',' read -ra PACKAGES <<< "$PROFILE_AUR_PACKAGES"
 
@@ -93,20 +105,30 @@ if [[ -n "${PROFILE_AUR_PACKAGES:-}" ]]; then
         echo "=== Processing $pkg ==="
 
         # Check if package is already in maur cache
-        if echo "$CACHED_PACKAGES" | grep -q "^$pkg$"; then
-            echo "$pkg is already cached"
-
-            # Check if installed
+        CACHE_DIR="${HOME}/.cache/maur/${pkg}"
+        if [[ -d "$CACHE_DIR" ]]; then
+            # Package is in cache
             if pacman -Q "$pkg" &>/dev/null; then
-                echo "$pkg is already installed"
+                echo "$pkg is already installed (cached)"
             else
-                echo "Installing $pkg from cache..."
+                echo "$pkg is cached but not installed, installing..."
                 maur install "$pkg"
             fi
         else
-            # Not in cache - add it (will also install if not already installed)
-            echo "Adding $pkg to cache..."
-            maur add "$pkg"
+            # Not in cache - check if installed anyway
+            if pacman -Q "$pkg" &>/dev/null; then
+                echo "$pkg is already installed, cloning to cache for future updates..."
+                mkdir -p "${HOME}/.cache/maur"
+                if git clone "https://aur.archlinux.org/${pkg}.git" "$CACHE_DIR" 2>/dev/null; then
+                    echo "$pkg cloned to cache successfully"
+                else
+                    echo "WARNING: Failed to clone $pkg to cache"
+                fi
+            else
+                # Not cached and not installed - add it
+                echo "Adding $pkg to cache and installing..."
+                maur add "$pkg"
+            fi
         fi
     done
 
