@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_common.sh"
+
+echo "Setting up ShowMeTheKey (screenkey alternative for Wayland)..."
+
+# Install showmethekey package
+install_packages showmethekey
+
+# Add Hyprland configuration to local.conf
+HYPR_LOCAL_CONF="$HOME/.config/hypr/local.conf"
+
+if [[ ! -f "$HYPR_LOCAL_CONF" ]]; then
+    echo "ERROR: Hyprland local config not found at $HYPR_LOCAL_CONF"
+    echo "Make sure the 'hypr' run script has been executed first"
+    exit 1
+fi
+
+# Check if showmethekey config already exists
+if grep -q "showmethekey" "$HYPR_LOCAL_CONF"; then
+    echo "ShowMeTheKey configuration already exists in local.conf"
+else
+    echo "Adding ShowMeTheKey window rules and keybinding to local.conf..."
+    cat >> "$HYPR_LOCAL_CONF" << 'EOF'
+
+# ShowMeTheKey - screenkey alternative for Wayland (for screencasts)
+windowrulev2 = float,class:^(showmethekey-gtk)$
+windowrulev2 = pin,class:^(showmethekey-gtk)$
+
+# Toggle showmethekey with Super+Shift+K
+bind = SUPER SHIFT, K, exec, pkill showmethekey-gtk || showmethekey-gtk
+EOF
+    echo "ShowMeTheKey configuration added"
+fi
+
+echo "ShowMeTheKey setup complete!"
+echo "Usage: Press Super+Shift+K to toggle key display on/off"

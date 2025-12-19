@@ -32,6 +32,7 @@ hyprpaper
 fcitx5
 gtk
 gsettings
+showmethekey
 
 # === Shell & Terminal ===
 bash
